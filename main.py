@@ -1,6 +1,7 @@
 import pygame as pg
 from settings import *
 from sprites import *
+from os import path
 
 class Game:
     def __init__(self):
@@ -9,22 +10,36 @@ class Game:
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.clock = pg.time.Clock()
 
-        pg.key.set_repeat(50)
+        pg.key.set_repeat(100)
 
         self.load_data()
 
     def load_data(self):
-        pass 
+        game_folder = path.dirname(__file__)
+        self.map_data = []
+        
+        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
+            for line in f.readlines():
+                line = line.strip()
+                self.map_data.append(line)
+        print(self.map_data)
+
 
     def new(self):
         self.playing = True
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
 
-        self.player = Player(self, 0, 0)
-        for i in range(5, 10):
-            Wall(self, i, 5)
+        
+        for y, tiles in enumerate(self.map_data):
+            for x, tile in enumerate(tiles):
+                if tile == '1':
+                    Wall(self, x, y)
+                if tile == 'P':
+                    self.player = Player(self, x, y)
+
         while self.playing:
+            self.dt = self.clock.tick(FPS) / 1000
             self.events()
             self.update()
             self.draw()
@@ -40,14 +55,7 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     print('space')
-                if event.key == pg.K_LEFT:
-                    self.player.move(dx=-1)
-                if event.key == pg.K_RIGHT:
-                    self.player.move(dx=1)
-                if event.key == pg.K_UP:
-                    self.player.move(dy=-1)
-                if event.key == pg.K_DOWN:
-                    self.player.move(dy=1)
+
     
     def update(self):
         self.all_sprites.update()
