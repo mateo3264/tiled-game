@@ -2,6 +2,7 @@ import pygame as pg
 from settings import *
 from sprites import *
 from os import path
+from tilemap import *
 
 class Game:
     def __init__(self):
@@ -16,13 +17,10 @@ class Game:
 
     def load_data(self):
         game_folder = path.dirname(__file__)
-        self.map_data = []
+        self.map = Map(path.join(game_folder, 'map2.txt'))
         
-        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
-            for line in f.readlines():
-                line = line.strip()
-                self.map_data.append(line)
-        print(self.map_data)
+        
+        print(self.map)
 
 
     def new(self):
@@ -31,12 +29,13 @@ class Game:
         self.walls = pg.sprite.Group()
 
         
-        for y, tiles in enumerate(self.map_data):
+        for y, tiles in enumerate(self.map.data):
             for x, tile in enumerate(tiles):
                 if tile == '1':
                     Wall(self, x, y)
                 if tile == 'P':
                     self.player = Player(self, x, y)
+        self.camera = Camera(self.map.width, self.map.height)
 
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
@@ -44,7 +43,6 @@ class Game:
             self.update()
             self.draw()
         
-        self.run()
     
     def events(self):
         for event in pg.event.get():
@@ -59,6 +57,7 @@ class Game:
     
     def update(self):
         self.all_sprites.update()
+        self.camera.update(self.player)
     
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -69,7 +68,9 @@ class Game:
     def draw(self):
         self.screen.fill(GRAY)
         self.draw_grid()
-        self.all_sprites.draw(self.screen)
+        # self.all_sprites.draw(self.screen)
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
         pg.display.flip()
     
     def show_start_screen(self):
