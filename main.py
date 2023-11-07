@@ -21,8 +21,9 @@ class Game:
         self.map = Map(path.join(game_folder, 'map2.txt'))
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
-        
-        
+        self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
+        self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
+        self.zombie_img = pg.image.load(path.join(img_folder, ZOMBIE_IMG)).convert_alpha()
         print(self.map)
 
 
@@ -30,6 +31,7 @@ class Game:
         self.playing = True
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.mobs = pg.sprite.Group()
 
         
         for y, tiles in enumerate(self.map.data):
@@ -38,6 +40,9 @@ class Game:
                     Wall(self, x, y)
                 if tile == 'P':
                     self.player = Player(self, x, y)
+                
+                if tile == 'M':
+                    Mob(self, x, y)
         self.camera = Camera(self.map.width, self.map.height)
 
         while self.playing:
@@ -62,6 +67,11 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
     
+        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+
+        if mob_hits:
+            self.playing = False
+    
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
@@ -69,8 +79,9 @@ class Game:
             pg.draw.line(self.screen, LIGHTGRAY, (0, y), (WIDTH, y))
 
     def draw(self):
-        self.screen.fill(GRAY)
-        self.draw_grid()
+        pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+        self.screen.fill(BGCOLOR)
+        # self.draw_grid()
         # self.all_sprites.draw(self.screen)
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))

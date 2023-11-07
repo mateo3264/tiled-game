@@ -15,6 +15,12 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 GRAY = (50, 50, 50)
 LIGHTGRAY = (200, 200, 200)
+BGCOLOR = (105, 50, 10)
+
+
+WALL_IMG = 'tileGreen_39.png'
+ZOMBIE_IMG = 'zombie1_hold.png'
+
 
 PLAYER_SPEED = 500
 PLAYER_ROT_SPEED = 250
