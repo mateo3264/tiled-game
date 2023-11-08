@@ -19,8 +19,12 @@ BGCOLOR = (105, 50, 10)
 
 
 WALL_IMG = 'tileGreen_39.png'
-ZOMBIE_IMG = 'zombie1_hold.png'
 
+
+# Mob settings
+MOB_IMG = 'zombie1_hold.png'
+MOB_SPEED = 150
+MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
 
 PLAYER_SPEED = 500
 PLAYER_ROT_SPEED = 250

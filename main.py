@@ -23,7 +23,7 @@ class Game:
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
-        self.zombie_img = pg.image.load(path.join(img_folder, ZOMBIE_IMG)).convert_alpha()
+        self.zombie_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
         print(self.map)
 
 
