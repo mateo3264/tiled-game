@@ -24,6 +24,7 @@ class Game:
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
         self.zombie_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
+        self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
         print(self.map)
 
 
@@ -32,6 +33,7 @@ class Game:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
+        self.bullets = pg.sprite.Group()
 
         
         for y, tiles in enumerate(self.map.data):
@@ -71,6 +73,11 @@ class Game:
 
         if mob_hits:
             self.playing = False
+        
+        bullet_hits = pg.sprite.groupcollide(self.bullets, self.mobs, True, True)
+
+        
+
     
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):

@@ -1,5 +1,6 @@
 import pygame as pg
 
+vec = pg.math.Vector2
 
 WIDTH = 1024
 HEIGHT = 768
@@ -25,6 +26,14 @@ WALL_IMG = 'tileGreen_39.png'
 MOB_IMG = 'zombie1_hold.png'
 MOB_SPEED = 150
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
+BARREL_OFFSET = vec(10, 10)
+KICKBACK = 100
+GUN_SPREAD = 5
+# Bullet settings
+BULLET_IMG = 'bullet.png'
+BULLET_SPEED = 500
+BULLET_LIFETIME = 1000
+BULLET_RATE = 150
 
 PLAYER_SPEED = 500
 PLAYER_ROT_SPEED = 250
