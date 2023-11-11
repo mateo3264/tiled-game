@@ -4,6 +4,18 @@ from sprites import *
 from os import path
 from tilemap import *
 
+
+def draw_health_bar(surf, x, y, pct):
+        if pct > .7:
+            col = GREEN
+        elif .4 < pct <= .7:
+            col = YELLOW
+        else:
+            col = RED
+        width = int(PLAYER_HEALTH * pct)
+        pg.draw.rect(surf, col, (20, 20, width, 15)) 
+        pg.draw.rect(surf, WHITE, (20, 20, PLAYER_HEALTH, 15), 2) 
+
 class Game:
     def __init__(self):
         self.running = True
@@ -69,15 +81,25 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
     
-        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
 
+        for hit in mob_hits:
+            self.player.health -= MOB_DAMAGE
+            hit.vel = vec(0, 0)
+            if self.player.health <= 0:
+                self.player.kill()
+                self.playing = False
+        
         if mob_hits:
-            self.playing = False
+            self.player.pos += vec(MOB_KNOCKBACK, 0 ).rotate(-mob_hits[0].rot)
         
-        bullet_hits = pg.sprite.groupcollide(self.bullets, self.mobs, True, True)
+        bullet_hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
 
-        
-
+        for hit in bullet_hits:
+            hit.health -= BULLET_DAMAGE 
+            hit.vel = vec(0, 0)
+            
+    
     
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -88,9 +110,12 @@ class Game:
     def draw(self):
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
         self.screen.fill(BGCOLOR)
+        draw_health_bar(self.screen, 20, 20, self.player.health / PLAYER_HEALTH)
         # self.draw_grid()
         # self.all_sprites.draw(self.screen)
         for sprite in self.all_sprites:
+            if isinstance(sprite, Mob):
+                sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         pg.display.flip()
     

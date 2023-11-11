@@ -54,6 +54,8 @@ class Player(pg.sprite.Sprite):
         
         self.last_shot = 0
 
+        self.health = PLAYER_HEALTH
+
     def get_keys(self):
         self.rot_speed = 0
         self.vel = vec(0, 0)
@@ -131,8 +133,22 @@ class Mob(pg.sprite.Sprite):
         self.hit_rect = MOB_HIT_RECT.copy()
         self.hit_rect.center = self.rect.center
 
-        self.rot = 0    
+        self.rot = 0   
+
+        self.health = MOB_HEALTH 
+    def draw_health(self):
+        if self.health > 60:
+            col = GREEN
+        elif 30 < self.health <=60:
+            col = YELLOW
+        else:
+            col = RED
+        width = int(self.rect.width * self.health / MOB_HEALTH)
+        if self.health < MOB_HEALTH:
+
+            pg.draw.rect(self.image, col, (0, 0, width, 5))
     def update(self):
+        
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
         self.image = pg.transform.rotate(self.game.zombie_img, self.rot)
 
@@ -150,6 +166,9 @@ class Mob(pg.sprite.Sprite):
 
         
         self.rect.center = self.hit_rect.center
+
+        if self.health <= 0:
+            self.kill()
 
 
 class Bullet(pg.sprite.Sprite):
