@@ -30,7 +30,10 @@ class Game:
     def load_data(self):
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
-        self.map = Map(path.join(game_folder, 'map2.txt'))
+        map_folder = path.join(game_folder, 'maps')
+        self.map = TiledMap(path.join(map_folder, 'tiled1.tmx'))
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
@@ -48,15 +51,16 @@ class Game:
         self.bullets = pg.sprite.Group()
 
         
-        for y, tiles in enumerate(self.map.data):
-            for x, tile in enumerate(tiles):
-                if tile == '1':
-                    Wall(self, x, y)
-                if tile == 'P':
-                    self.player = Player(self, x, y)
+        # for y, tiles in enumerate(self.map.data):
+        #     for x, tile in enumerate(tiles):
+        #         if tile == '1':
+        #             Wall(self, x, y)
+        #         if tile == 'P':
+        #             self.player = Player(self, x, y)
                 
-                if tile == 'M':
-                    Mob(self, x, y)
+        #         if tile == 'M':
+        #             Mob(self, x, y)
+        self.player = Player(self, 5, 5)
         self.camera = Camera(self.map.width, self.map.height)
 
         while self.playing:
@@ -109,7 +113,8 @@ class Game:
 
     def draw(self):
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-        self.screen.fill(BGCOLOR)
+        # self.screen.fill(BGCOLOR)
+        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         draw_health_bar(self.screen, 20, 20, self.player.health / PLAYER_HEALTH)
         # self.draw_grid()
         # self.all_sprites.draw(self.screen)
