@@ -1,6 +1,6 @@
 from settings import *
 import pygame as pg
-from random import uniform
+from random import uniform, choice
 from tilemap import collide_hit_rect
 
 
@@ -49,7 +49,7 @@ class Player(pg.sprite.Sprite):
 
         
         self.vel = vec(0, 0)
-        self.pos = vec(x, y) * TILESIZE
+        self.pos = vec(x, y)
         self.rot = 0
         
         self.last_shot = 0
@@ -124,9 +124,11 @@ class Mob(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
 
 
-        self.pos = vec(x, y) * TILESIZE
+        self.pos = vec(x, y)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
+
+        self.speed = choice(MOB_SPEEDS)
 
         self.rect.center = self.pos
 
@@ -147,6 +149,14 @@ class Mob(pg.sprite.Sprite):
         if self.health < MOB_HEALTH:
 
             pg.draw.rect(self.image, col, (0, 0, width, 5))
+    
+    def avoid_mobs(self):
+        for mob in self.game.mobs:
+            if mob != self:
+                dist = self.pos - mob.pos
+                if 0 < dist.length() < AVOID_RADIUS:
+                    self.acc += dist.normalize()
+
     def update(self):
         
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
@@ -154,15 +164,17 @@ class Mob(pg.sprite.Sprite):
 
         self.rect = self.image.get_rect()
 
+
+        self.acc = vec(1, 0).rotate(-self.rot)
+        self.avoid_mobs()
+        self.acc.scale_to_length(self.speed)
+        self.acc += self.vel * -1
+        self.vel += self.acc * self.game.dt
+        self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.walls, 'x')
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
-
-        self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
-        self.acc += self.vel * -1
-        self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
 
         
         self.rect.center = self.hit_rect.center
@@ -179,6 +191,7 @@ class Bullet(pg.sprite.Sprite):
         self.game = game
         self.image =  game.bullet_img
         self.rect = self.image.get_rect()
+        self.hit_rect = self.rect
         self.pos = vec(pos)
         self.rect.center = pos
         spread = uniform(-GUN_SPREAD, GUN_SPREAD)
@@ -215,6 +228,28 @@ class Wall(pg.sprite.Sprite):
         
         self.rect.x = self.x * TILESIZE
         self.rect.y = self.y * TILESIZE
+    
+    def update(self):
+        pass
+
+
+class Obstacle(pg.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.walls
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        
+        #self.image = 
+        #self.image.fill(GREEN)
+
+        self.rect = pg.Rect(x, y, w, h)
+
+        
+        self.x = x
+        self.y = y
+        
+        self.rect.x = self.x
+        self.rect.y = self.y
     
     def update(self):
         pass

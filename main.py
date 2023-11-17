@@ -60,8 +60,19 @@ class Game:
                 
         #         if tile == 'M':
         #             Mob(self, x, y)
-        self.player = Player(self, 5, 5)
+
+        for tile_obj in self.map.tmxdata.objects:
+            if tile_obj.name == 'player':
+                self.player = Player(self, tile_obj.x, tile_obj.y)
+            elif tile_obj.name == 'zombie':
+                Mob(self, tile_obj.x, tile_obj.y)
+            elif tile_obj.name == 'wall':
+                Obstacle(self, tile_obj.x, tile_obj.y,
+                         tile_obj.width, tile_obj.height)
+
         self.camera = Camera(self.map.width, self.map.height)
+
+        self.draw_debug = False
 
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
@@ -79,6 +90,8 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     print('space')
+                if event.key == pg.K_h:
+                    self.draw_debug = not self.draw_debug
 
     
     def update(self):
@@ -122,6 +135,15 @@ class Game:
             if isinstance(sprite, Mob):
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+
+            if self.draw_debug:
+                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+        
+        if self.draw_debug:
+            for wall in self.walls:
+                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
+    
+        
         pg.display.flip()
     
     def show_start_screen(self):

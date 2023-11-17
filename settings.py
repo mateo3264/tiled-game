@@ -18,6 +18,7 @@ GREEN = (0, 255, 0)
 GRAY = (50, 50, 50)
 LIGHTGRAY = (200, 200, 200)
 BGCOLOR = (105, 50, 10)
+CYAN = (0, 255, 255)
 
 
 WALL_IMG = 'tileGreen_39.png'
@@ -25,11 +26,12 @@ WALL_IMG = 'tileGreen_39.png'
 
 # Mob settings
 MOB_IMG = 'zombie1_hold.png'
-MOB_SPEED = 150
+MOB_SPEEDS = [150, 120, 165, 75, 100]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 MOB_HEALTH = 100
+AVOID_RADIUS = 50
 
 
 BARREL_OFFSET = vec(10, 10)
