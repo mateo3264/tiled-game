@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="4" nextobjectid="20">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="4" nextobjectid="41">
  <tileset firstgid="1" source="../img/Kenney Topdown Pack.tsx"/>
  <layer id="1" name="ground" width="50" height="30">
   <data encoding="csv">
@@ -37,21 +37,40 @@
  </layer>
  <objectgroup id="3" name="obstacles">
   <object id="1" name="player" x="656" y="272" width="32" height="30"/>
-  <object id="2" name="wall" x="768" y="128" width="128" height="190"/>
+  <object id="2" name="wall" x="1248" y="352" width="64" height="64"/>
   <object id="14" name="wall" x="784" y="464" width="416" height="32"/>
   <object id="15" name="wall" x="784" y="592" width="416" height="32"/>
   <object id="16" name="zombie" x="944" y="336" width="32" height="30"/>
   <object id="17" name="zombie" x="992" y="224" width="32" height="30"/>
   <object id="18" name="zombie" x="1072" y="144" width="32" height="30"/>
   <object id="19" name="zombie" x="1072" y="400" width="32" height="30"/>
+  <object id="20" name="wall" x="768" y="128" width="128" height="190"/>
+  <object id="21" name="wall" x="1376" y="416" width="64" height="64"/>
+  <object id="22" name="wall" x="1504" y="544" width="64" height="64"/>
+  <object id="23" name="wall" x="1376" y="672" width="64" height="64"/>
+  <object id="24" name="wall" x="1248" y="736" width="64" height="64"/>
+  <object id="25" name="wall" x="1248" y="992" width="64" height="64"/>
+  <object id="26" name="wall" x="1184" y="848" width="64" height="64"/>
+  <object id="27" name="wall" x="1184" y="1120" width="64" height="64"/>
+  <object id="28" name="wall" x="1056" y="1184" width="64" height="64"/>
+  <object id="29" name="wall" x="928" y="1184" width="64" height="64"/>
+  <object id="30" name="wall" x="800" y="1120" width="64" height="64"/>
+  <object id="31" name="wall" x="736" y="992" width="64" height="64"/>
+  <object id="32" name="wall" x="800" y="864" width="64" height="64"/>
+  <object id="33" name="random" x="656" y="464" width="32" height="30"/>
+  <object id="35" name="random" x="704" y="32" width="32" height="30"/>
+  <object id="36" name="random" x="1232" y="80" width="32" height="30"/>
+  <object id="38" name="wall" x="1296" y="208" width="32" height="30"/>
+  <object id="39" name="wall" x="1360" y="208" width="32" height="32"/>
+  <object id="40" name="wall" x="1360" y="272" width="32" height="32"/>
  </objectgroup>
  <layer id="2" name="trees" width="50" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,213,240,210,235,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,183,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,181,182,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,208,209,181,182,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,183,183,183,183,183,183,183,0,0,208,209,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

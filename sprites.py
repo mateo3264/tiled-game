@@ -2,9 +2,26 @@ from settings import *
 import pygame as pg
 from random import uniform, choice
 from tilemap import collide_hit_rect
+from pygame import midi
+import sys
+
+vec = pg.math.Vector2
+
+# sys.path.append('C:\\Users\\chave\\Estudio\\quote_mis_quote_proyectos\\pygame_pruebas')
+sys.path.append('..')
+
+from utils.patterns import PatternChecker2
+
+from utils.draw_text import draw_speech_bubble
+
 
 
 vec = pg.math.Vector2
+
+
+
+                
+
 
 
 def collide_with_walls(sprite, group, dir):
@@ -56,6 +73,12 @@ class Player(pg.sprite.Sprite):
 
         self.health = PLAYER_HEALTH
 
+        self.pattern_checker1 = PatternChecker2([60, 64, 67])
+        self.pattern_checker2 = PatternChecker2([72, 77])
+        self.pattern_checker3 = PatternChecker2([74, 76])
+        self.pattern_checker4 = PatternChecker2([48, 55])
+        
+
     def get_keys(self):
         self.rot_speed = 0
         self.vel = vec(0, 0)
@@ -88,9 +111,56 @@ class Player(pg.sprite.Sprite):
             self.pos.x += dx
             self.pos.y += dy
 
-      
+    def piano_update(self):
+        self.rot_speed = 0
+        self.vel = vec(0, 0)
+
+        if self.game.midi_input.poll():
+            midi_events = self.game.midi_input.read(15)
+            midi2events = midi.midis2events(midi_events, 1)
+
+            # dir, volume = self.pattern_checker1.check_pattern(midi2events, type='arpegios')
+            shot = self.pattern_checker1.check_pattern(midi2events, type='chord')
+            note_pattern_idx0 = self.pattern_checker2.check_pattern(midi2events, type='one-note', just_once=False)
+            note_pattern_idx = self.pattern_checker3.check_pattern(midi2events, type='one-note', just_once=False)
+            show_text = self.pattern_checker4.check_pattern(midi2events, type='chord')
+            
+
+
+            if shot:
+                dir = vec(1, 0).rotate(-self.rot)
+                pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
+                Bullet(self.game,  pos, dir)
+
+
+            if show_text:
+                self.game.player_text = not self.game.player_text    
+            
+            # if dir == 'left': 
+            #     print('left')
+            #     self.rot_speed = PLAYER_ROT_SPEED
+            # if dir == 'right': 
+            #     print('right')
+            #     self.rot_speed = -PLAYER_ROT_SPEED
+            if note_pattern_idx0 == 0:
+                self.rot_speed = PLAYER_ROT_SPEED
+            if note_pattern_idx0 == 1:
+                self.rot_speed = -PLAYER_ROT_SPEED
+
+            if note_pattern_idx == 0:
+                
+                self.vel = vec(-PLAYER_SPEED, 0).rotate(-self.rot)
+            if note_pattern_idx == 1:
+                
+                self.vel = vec(PLAYER_SPEED, 0).rotate(-self.rot)
+
+
     def update(self):
-        self.get_keys()
+        if self.game.playing_with_piano:
+            self.piano_update()
+        else:
+            
+            self.get_keys()
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
 
         self.image = pg.transform.rotate(self.game.player_img, self.rot)
@@ -138,6 +208,9 @@ class Mob(pg.sprite.Sprite):
         self.rot = 0   
 
         self.health = MOB_HEALTH 
+
+
+        
     def draw_health(self):
         if self.health > 60:
             col = GREEN
@@ -156,6 +229,10 @@ class Mob(pg.sprite.Sprite):
                 dist = self.pos - mob.pos
                 if 0 < dist.length() < AVOID_RADIUS:
                     self.acc += dist.normalize()
+
+
+
+
 
     def update(self):
         
@@ -235,6 +312,7 @@ class Wall(pg.sprite.Sprite):
 
 class Obstacle(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
+        
         self.groups = game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
 
@@ -253,3 +331,92 @@ class Obstacle(pg.sprite.Sprite):
     
     def update(self):
         pass
+
+
+class GrowingTree(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.growing_trees_group
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.gid = 7
+        self.image = self.game.map.tmxdata.get_tile_image_by_gid(self.gid)
+
+        self.rect = self.image.get_rect()
+
+        self.pos = vec(x, y)
+
+        self.rect.center = self.pos
+
+        self.last_update = 0
+
+        self.time_to_change = 10000 
+        self.time_to_change += choice([x for x in 
+                                       range(-1 * (self.time_to_change - self.time_to_change // 2), 
+                                             self.time_to_change + self.time_to_change // 2, self.time_to_change // 10
+                                             )
+                                        ]) 
+
+        self.hit_rect = self.rect
+
+    def update(self):
+        now = pg.time.get_ticks()
+
+        if now - self.last_update > self.time_to_change:
+            for wall in enumerate(self.game.walls):
+                        
+                if isinstance(wall[1], Obstacle):
+                    
+                    if wall[1].x == self.pos.x and wall[1].y == self.pos.y:
+                        print('kill!!')
+                        wall[1].kill()
+            if self.gid == 11:
+                self.kill()
+                return
+
+            self.last_update = now
+            self.gid += 1 
+            center = self.rect.center
+            self.image = self.game.map.tmxdata.get_tile_image_by_gid(self.gid)
+
+            self.rect = self.image.get_rect()
+
+            self.rect.center = self.pos
+
+
+            
+        
+            # print(len(self.game.walls))
+        
+            if self.gid > 9:
+                
+                Obstacle(self.game, self.pos.x, self.pos.y,
+                        self.game.map.tmxdata.width, self.game.map.tmxdata.height)
+
+
+class House(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.houses
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.image = self.game.house_img
+
+        self.rect = self.image.get_rect()
+
+        self.pos = vec(x, y)
+
+        self.rect.center = self.pos
+
+        self.hit_rect = self.rect
+
+        Obstacle(self.game, self.pos.x, self.pos.y,
+                 self.game.map.tmxdata.width,
+                 self.game.map.tmxdata.height)
+    
+    def update(self):
+        self.rect.center = self.pos

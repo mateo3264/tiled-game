@@ -49,3 +49,8 @@ PLAYER_ROT_SPEED = 250
 PLAYER_IMG = 'manBlue_gun.png'
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 200
+
+
+C_IMG = 'c.png'
+
+HOUSE_IMG = 'medievalStructure_17.png'
