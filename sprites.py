@@ -5,10 +5,12 @@ from tilemap import collide_hit_rect
 from pygame import midi
 import sys
 
+sys.path.append('..')
+
 vec = pg.math.Vector2
 
-# sys.path.append('C:\\Users\\chave\\Estudio\\quote_mis_quote_proyectos\\pygame_pruebas')
-sys.path.append('..')
+
+#sys.path.append('..')
 
 from utils.patterns import PatternChecker2
 
@@ -77,6 +79,8 @@ class Player(pg.sprite.Sprite):
         self.pattern_checker2 = PatternChecker2([72, 77])
         self.pattern_checker3 = PatternChecker2([74, 76])
         self.pattern_checker4 = PatternChecker2([48, 55])
+        self.pattern_checker5 = PatternChecker2([84, 85, 86, 87, 88])
+        self.pattern_checker6 = PatternChecker2([x for x in range(*self.game.range_of_notes)])
         
 
     def get_keys(self):
@@ -123,8 +127,28 @@ class Player(pg.sprite.Sprite):
             shot = self.pattern_checker1.check_pattern(midi2events, type='chord')
             note_pattern_idx0 = self.pattern_checker2.check_pattern(midi2events, type='one-note', just_once=False)
             note_pattern_idx = self.pattern_checker3.check_pattern(midi2events, type='one-note', just_once=False)
+            note_pattern_idx2 = self.pattern_checker5.check_pattern(midi2events, type='one-note', just_once=False)
+            notes = self.pattern_checker6.check_pattern(midi2events, type='check-note', just_once=False)
             show_text = self.pattern_checker4.check_pattern(midi2events, type='chord')
             
+            #todo: If the student press a cluster containing 
+            # all the notes in the range defined to write the score
+            # then the student will always be "right". Correct that
+            if self.game.curr_midi_note in notes and self.game.draw_score:
+                self.game.curr_midi_note_idx = (self.game.curr_midi_note_idx + 1) % len(self.game.midi_notes)
+                self.game.curr_midi_note = self.game.midi_notes[self.game.curr_midi_note_idx]
+                print('Nice!')
+                print(f'Note: {notes}')
+                self.game.notes2enter_house.append(notes[0])
+                print(self.game.notes2enter_house)
+            else:
+                if notes != []:
+                    self.game.notes2enter_house = []
+            
+            if self.game.midi_notes == self.game.notes2enter_house:
+                print('EXCELLENT EEEEEE!!!!!!!')
+                self.game.notes2enter_house = []
+                self.game.current_map_img = self.game.map2_img
 
 
             if shot:
@@ -153,6 +177,22 @@ class Player(pg.sprite.Sprite):
             if note_pattern_idx == 1:
                 
                 self.vel = vec(PLAYER_SPEED, 0).rotate(-self.rot)
+            
+            if note_pattern_idx2 == 0:
+                #self.game.canvas.color_idx = (self.game.canvas.color_idx + 1) % len(COLORS)
+                self.game.canvas.color = COLORS[note_pattern_idx2]  
+            elif note_pattern_idx2 == 1:
+                #self.game.canvas.color_idx = (self.game.canvas.color_idx + 1) % len(COLORS)
+                self.game.canvas.color = COLORS[note_pattern_idx2]  
+            elif note_pattern_idx2 == 2:
+                #self.game.canvas.color_idx = (self.game.canvas.color_idx + 1) % len(COLORS)
+                self.game.canvas.color = COLORS[note_pattern_idx2]  
+            elif note_pattern_idx2 == 3:
+                #self.game.canvas.color_idx = (self.game.canvas.color_idx + 1) % len(COLORS)
+                self.game.canvas.color = COLORS[note_pattern_idx2]  
+            elif note_pattern_idx2 == 4:
+                #self.game.canvas.color_idx = (self.game.canvas.color_idx + 1) % len(COLORS)
+                self.game.canvas.color = COLORS[note_pattern_idx2]  
 
 
     def update(self):
@@ -370,7 +410,7 @@ class GrowingTree(pg.sprite.Sprite):
                 if isinstance(wall[1], Obstacle):
                     
                     if wall[1].x == self.pos.x and wall[1].y == self.pos.y:
-                        print('kill!!')
+                        
                         wall[1].kill()
             if self.gid == 11:
                 self.kill()
@@ -419,4 +459,37 @@ class House(pg.sprite.Sprite):
                  self.game.map.tmxdata.height)
     
     def update(self):
+        self.hit_rect.center = self.pos
+        self.rect.center = self.hit_rect.center
+
+
+#class to change colors with piano
+class Canvas(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.groups = game.all_sprites
+        pg.sprite.Sprite.__init__(self, self.groups)
+        
+        self.game = game
+
+        self.image = pg.Surface((100, 100))
+        self.color_idx = 0
+        self.color = COLORS[self.color_idx]
+
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+
+        
+        self.pos = vec(x, y)
         self.rect.center = self.pos
+        
+        self.hit_rect = self.rect
+        
+    
+    def update(self):
+        self.hit_rect.center = self.pos
+        self.rect.center = self.hit_rect.center
+        
+        self.image.fill(self.color)
+        
+

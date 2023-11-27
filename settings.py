@@ -20,6 +20,15 @@ LIGHTGRAY = (200, 200, 200)
 BGCOLOR = (105, 50, 10)
 CYAN = (0, 255, 255)
 
+COLORS = [
+    WHITE,
+    BLACK,
+    RED,
+    YELLOW,
+    CYAN,
+    GREEN
+]
+
 
 WALL_IMG = 'tileGreen_39.png'
 

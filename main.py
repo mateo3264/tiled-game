@@ -4,7 +4,10 @@ from sprites import *
 from os import path
 from tilemap import *
 from pygame import midi
-from utils.draw_text import draw_speech_bubble
+from utils.draw_text import draw_image_bubble, draw_speech_bubble
+from utils.music_note_creation import create_seq_notes, RANGE_OF_NOTES
+from utils.play_midi_notes import MidiPlayer
+from utils.spritesheet import Spritesheet
 
 midi.init()
 
@@ -61,17 +64,30 @@ class Game:
         print('self.playing_with_piano')
         print(self.playing_with_piano)
 
+        self.midi_output = midi.Output(2)
 
         self.player_text = False
 
         self.load_data()
 
+        self.range_of_notes = RANGE_OF_NOTES
+    def load_audio_data(self):
+        
+        self.midi_notes = create_seq_notes()
+        self.midi_player = MidiPlayer(self)
+        self.curr_midi_note_idx = 0
+        self.curr_midi_note = self.midi_notes[self.curr_midi_note_idx]
+        
     def load_data(self):
+        
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
         map_folder = path.join(game_folder, 'maps')
         self.map = TiledMap(path.join(map_folder, 'tiled1.tmx'))
         self.map2 = TiledMap(path.join(map_folder, 'tiled2.tmx'))
+
+        self.score = Spritesheet(path.join(img_folder, 'score1.png'))
+
         self.map_img = self.map.make_map()
         self.current_map_img = self.map_img
         self.map2_img = self.map2.make_map()
@@ -99,50 +115,45 @@ class Game:
 
         self.last_update = 0
 
+        self.last_midi_update = 0
+
         self.growing_trees = [(100, 100), (150, 100), (100, 150), (150, 150)]
 
         for x, y in self.growing_trees:
             GrowingTree(self, x, y)
 
         House(self, 400, 300)
-        # for y, tiles in enumerate(self.map.data):
-        #     for x, tile in enumerate(tiles):
-        #         if tile == '1':
-        #             Wall(self, x, y)
-        #         if tile == 'P':
-        #             self.player = Player(self, x, y)
-                
-        #         if tile == 'M':
-        #             Mob(self, x, y)
+
+        self.draw_score = False
+
+        self.notes2enter_house = []
 
         for tile_obj in self.map.tmxdata.objects:
             if tile_obj.name == 'player':
                 self.player = Player(self, tile_obj.x, tile_obj.y)
-            # elif tile_obj.name == 'zombie':
-            #     Mob(self, tile_obj.x, tile_obj.y)
             elif tile_obj.name == 'wall':
                 Obstacle(self, tile_obj.x, tile_obj.y,
                          tile_obj.width, tile_obj.height)
-            # elif tile_obj.name == 'random':
-                
-            #     tile = self.map.tmxdata.get_tile_image_by_gid(choice([x for x in range(5, 15)]))
-            #     self.map_img.blit(tile, (tile_obj.x, tile_obj.y))
-            #     Obstacle(self, tile_obj.x, tile_obj.y,
-            #              tile_obj.width, tile_obj.height)
-        
         
         
         spawn_mob_object(self, 100, 300)
         self.camera = Camera(self.map.width, self.map.height)
         
+        self.canvas = Canvas(self, 350, 350)
+
+        
 
         self.draw_debug = False
+
+        self.load_audio_data()
+        self.midi_idx = 0
 
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
             self.update()
             self.draw()
+            
         
     
     def events(self):
@@ -165,8 +176,8 @@ class Game:
 
     
     def update(self):
-
-            
+        #self.curr_midi_note = self.midi_player.play_midi_note()
+        
         self.all_sprites.update()
         self.camera.update(self.player)
     
@@ -187,7 +198,17 @@ class Game:
         for hit in bullet_hits:
             hit.health -= BULLET_DAMAGE 
             hit.vel = vec(0, 0)
-            
+
+        hit_houses = pg.sprite.spritecollide(self.player, self.houses, False, collide_hit_rect)
+
+        if hit_houses:
+            self.draw_score = True
+            draw_image_bubble(self.screen, (500, 700))
+        else:
+            self.draw_score = False
+
+
+
     
     
     def draw_grid(self):
@@ -218,9 +239,13 @@ class Game:
 
         if self.player_text:
             draw_speech_bubble(self.screen, 'Hi!!!', BLACK, WHITE, 
-                               self.camera.apply_rect(self.player.hit_rect).center, 20
+                               (20, 20), 20
                                )
-        
+        if self.draw_score:
+            draw_image_bubble(self.screen, (500, 700))
+            
+        # score = self.score.get_image(0, 0, 350, 120)
+        # self.screen.blit(score, (200, 0))
         pg.display.flip()
     
     def show_start_screen(self):
