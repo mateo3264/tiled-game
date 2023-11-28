@@ -1,4 +1,5 @@
 from settings import *
+from locations import *
 import pygame as pg
 from random import uniform, choice
 from tilemap import collide_hit_rect
@@ -15,6 +16,7 @@ vec = pg.math.Vector2
 from utils.patterns import PatternChecker2
 
 from utils.draw_text import draw_speech_bubble
+
 
 
 
@@ -80,7 +82,7 @@ class Player(pg.sprite.Sprite):
         self.pattern_checker3 = PatternChecker2([74, 76])
         self.pattern_checker4 = PatternChecker2([48, 55])
         self.pattern_checker5 = PatternChecker2([84, 85, 86, 87, 88])
-        self.pattern_checker6 = PatternChecker2([x for x in range(*self.game.range_of_notes)])
+        self.pattern_checker6 = PatternChecker2([x for x in range(*self.game.range_of_notes)][:self.game.number_of_notes])
         
 
     def get_keys(self):
@@ -134,22 +136,28 @@ class Player(pg.sprite.Sprite):
             #todo: If the student press a cluster containing 
             # all the notes in the range defined to write the score
             # then the student will always be "right". Correct that
-            if self.game.curr_midi_note in notes and self.game.draw_score:
-                self.game.curr_midi_note_idx = (self.game.curr_midi_note_idx + 1) % len(self.game.midi_notes)
-                self.game.curr_midi_note = self.game.midi_notes[self.game.curr_midi_note_idx]
-                print('Nice!')
-                print(f'Note: {notes}')
-                self.game.notes2enter_house.append(notes[0])
-                print(self.game.notes2enter_house)
-            else:
-                if notes != []:
-                    self.game.notes2enter_house = []
             
-            if self.game.midi_notes == self.game.notes2enter_house:
-                print('EXCELLENT EEEEEE!!!!!!!')
-                self.game.notes2enter_house = []
-                self.game.current_map_img = self.game.map2_img
-
+            
+            if self.game.curr_house is not None:
+                
+                
+                if self.game.curr_house.curr_midi_note in notes and self.game.draw_score:
+                    self.game.curr_house.curr_midi_note_idx = (self.game.curr_house.curr_midi_note_idx + 1) % len(self.game.curr_house.midi_notes)
+                    self.game.curr_house.curr_midi_note = self.game.curr_house.midi_notes[self.game.curr_house.curr_midi_note_idx]
+                    
+                    self.game.notes2enter_house.append(notes[0])
+                    
+                else:
+                    
+                    if notes != []:
+                        self.game.notes2enter_house = []
+                        self.game.curr_house.curr_midi_note_idx = 0
+                        self.game.curr_house.curr_midi_note = self.game.curr_house.midi_notes[self.game.curr_house.curr_midi_note_idx]
+                if self.game.curr_house.midi_notes == self.game.notes2enter_house:
+                    
+                    self.game.notes2enter_house = []
+                    self.game.curr_house.curr_midi_note_idx = 0
+                    self.game.change_level(self.game.curr_house.scene)
 
             if shot:
                 dir = vec(1, 0).rotate(-self.rot)
@@ -160,12 +168,7 @@ class Player(pg.sprite.Sprite):
             if show_text:
                 self.game.player_text = not self.game.player_text    
             
-            # if dir == 'left': 
-            #     print('left')
-            #     self.rot_speed = PLAYER_ROT_SPEED
-            # if dir == 'right': 
-            #     print('right')
-            #     self.rot_speed = -PLAYER_ROT_SPEED
+            
             if note_pattern_idx0 == 0:
                 self.rot_speed = PLAYER_ROT_SPEED
             if note_pattern_idx0 == 1:
@@ -382,7 +385,7 @@ class GrowingTree(pg.sprite.Sprite):
         self.game = game
 
         self.gid = 7
-        self.image = self.game.map.tmxdata.get_tile_image_by_gid(self.gid)
+        self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
 
         self.rect = self.image.get_rect()
 
@@ -419,32 +422,40 @@ class GrowingTree(pg.sprite.Sprite):
             self.last_update = now
             self.gid += 1 
             center = self.rect.center
-            self.image = self.game.map.tmxdata.get_tile_image_by_gid(self.gid)
+            self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
 
             self.rect = self.image.get_rect()
 
             self.rect.center = self.pos
 
-
-            
-        
-            # print(len(self.game.walls))
         
             if self.gid > 9:
                 
                 Obstacle(self.game, self.pos.x, self.pos.y,
-                        self.game.map.tmxdata.width, self.game.map.tmxdata.height)
+                        self.game.map_info[0]['map'].tmxdata.width, self.game.map_info[0]['map'].tmxdata.height)
 
 
 class House(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, midi_notes, scene):
         self.groups = game.all_sprites, game.houses
 
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
 
+        self.midi_notes = midi_notes
+        
+        self.curr_midi_note_idx = 0
+        self.curr_midi_note = self.midi_notes[self.curr_midi_note_idx]
+
+        self.scene = scene
+
         self.image = self.game.house_img
+
+
+        self.rect = self.image.get_rect()
+        
+        self.image = pg.transform.scale(self.image, (self.rect.width * 2, self.rect.height * 2))
 
         self.rect = self.image.get_rect()
 
@@ -454,11 +465,16 @@ class House(pg.sprite.Sprite):
 
         self.hit_rect = self.rect
 
+        self.hit_rect.width += 20  
+        self.hit_rect.height += 20  
+
         Obstacle(self.game, self.pos.x, self.pos.y,
-                 self.game.map.tmxdata.width,
-                 self.game.map.tmxdata.height)
+                 self.game.map_info[0]['map'].tmxdata.width,
+                 self.game.map_info[0]['map'].tmxdata.height)
     
     def update(self):
+        #print(f'House {self.scene - 1}: {self.midi_notes}')
+        
         self.hit_rect.center = self.pos
         self.rect.center = self.hit_rect.center
 
@@ -491,5 +507,28 @@ class Canvas(pg.sprite.Sprite):
         self.rect.center = self.hit_rect.center
         
         self.image.fill(self.color)
+
+class Door(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        
+        self.groups = game.all_sprites, game.doors
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.image = self.game.door_img
+
+        self.rect = self.image.get_rect()
+
+        self.hit_rect = self.rect
+
+        self.pos = vec(x, y)
+
+        self.rect.center = self.pos
+    
+    def update(self):
+        self.hit_rect.center = self.pos
+        self.rect.center = self.hit_rect.center
         
 

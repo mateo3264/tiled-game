@@ -63,3 +63,6 @@ PLAYER_HEALTH = 200
 C_IMG = 'c.png'
 
 HOUSE_IMG = 'medievalStructure_17.png'
+
+
+DOOR_IMG = 'door.png'

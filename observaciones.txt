@@ -1,0 +1,12 @@
+-Al requerir tocar un fragmento de un score 
+ igual para la casa permite reforzar el 
+ recordarlo. Entonces una buena jugabilidad
+ es que el jugador tenga que volver varias
+ veces a lugares en los cuales se necesite
+ esto
+
+- Se puede hacer fading para que solo la casa
+  controle el tocar la secuencia de notas.
+
+- Se puede reducir el tiempo en el que se 
+  observa el score.

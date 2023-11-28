@@ -1,0 +1,23 @@
+- Unite locations dict into a single dict
+- Define where to put change of scene code
+- Create debug mode to go immediately
+- Associate scenes to houses (or scenes to doors etc)
+- Iterate over map folder to load all .tmx files
+- Define how to associate a house with a scene (eg automatically?)
+- Associate scores to houses
+- Define if houses will have same notes or in each new game the
+  notes will change
+- Delete scores when game ends
+- Verify that the order of notes played influence wheter the player enters
+  or no
+- Define how to make a house only if there are
+  maps or houses in which the player cannot enter
+
+
+- Aumentar la operación de motivación para tocar rápido
+  las notas y entrar en la casa etc al aumentar el número
+  de zombies y disminuir las armas
+
+- Minijuego o mecánica de juego en la que se "reconocen"
+  imitaciones totales o parciales, aumentación, disminución de fragmentos.
+---- se puede tocar la imitación etc o simplemente reconocerla etc
