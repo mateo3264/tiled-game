@@ -13,9 +13,9 @@ vec = pg.math.Vector2
 
 #sys.path.append('..')
 
-from utils.patterns import PatternChecker2
+from midipatternspkg.patterns import PatternChecker2
 
-from utils.draw_text import draw_speech_bubble
+from midipatternspkg.draw_text import draw_speech_bubble
 
 
 

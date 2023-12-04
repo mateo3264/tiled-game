@@ -8,8 +8,8 @@ from locations import *
 from os import path
 from tilemap import *
 from pygame import midi
-from utils.draw_text import draw_image_bubble, draw_speech_bubble
-from utils.music_note_creation import create_seq_notes, RANGE_OF_NOTES, NUMBER_OF_NOTES
+from midipatternspkg.draw_text import draw_image_bubble, draw_speech_bubble
+from midipatternspkg.music_note_creation import create_seq_notes, RANGE_OF_NOTES, NUMBER_OF_NOTES
 # from utils.play_midi_notes import MidiPlayer
 # from utils.spritesheet import Spritesheet
 
@@ -83,7 +83,7 @@ class Game:
             n_houses += len(coords)
         
         print('n_houses: ', n_houses)
-        self.seq_notes = [create_seq_notes() for _ in range(n_houses)]
+        self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt') for _ in range(n_houses)]
 
         self.range_of_notes = RANGE_OF_NOTES
         self.number_of_notes = NUMBER_OF_NOTES
