@@ -29,6 +29,17 @@ vec = pg.math.Vector2
 
 
 
+class Spritesheet:
+    def __init__(self, filename):
+        self.spritesheet = pg.image.load(filename).convert()
+    
+    def get_image(self, x, y, width, height):
+        image = pg.Surface((width, height))
+        image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+        image = pg.transform.scale(image, (width // 2, height // 2))
+        return image
+
+
 def collide_with_walls(sprite, group, dir):
     
     if dir == 'x':
@@ -542,4 +553,69 @@ class Door(pg.sprite.Sprite):
         self.hit_rect.center = self.pos
         self.rect.center = self.hit_rect.center
         
+class Coin(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.coins
 
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.coin_images = [
+            self.game.spritesheet.get_image(698, 1931, 84, 84),
+            self.game.spritesheet.get_image(829, 0, 66, 84),
+            self.game.spritesheet.get_image(897, 1574, 50, 84),
+            self.game.spritesheet.get_image(645, 651, 15, 84),
+            
+        ]
+        # self.coin_images.append(pg.transform.rotate(self.coin_images[-2], True))
+        # self.coin_images.append(pg.transform.rotate(self.coin_images[-3], True))
+
+
+        self.idx_curr_img = 0
+        self.image = self.coin_images[self.idx_curr_img]
+
+        for image in self.coin_images:
+            image.set_colorkey(BLACK)
+
+        self.rect = self.image.get_rect()
+
+        self.pos = vec(x, y)
+
+        self.rect.center = self.pos
+
+        self.hit_rect = self.rect 
+
+        self.last_update = 0
+        
+
+    def update(self):
+        
+        now = pg.time.get_ticks()
+
+        if now - self.last_update > 100:
+            self.last_update = now
+            self.idx_curr_img = (self.idx_curr_img + 1) % len(self.coin_images)
+
+            bottom = self.rect.bottom
+
+            self.image = self.coin_images[self.idx_curr_img]
+
+            self.rect = self.image.get_rect()
+
+            self.rect.bottom = bottom
+
+
+        self.rect.center = self.pos
+
+        self.hit_rect = self.rect 
+
+        hit = pg.sprite.spritecollide(self.game.player, self.game.coins, True, collide_hit_rect)
+
+        if hit:
+            
+            self.game.number_of_coins_gained += 1
+
+            print(f'Coins: {self.game.number_of_coins_gained}')
+            self.game.pickup_coin_snd.play()

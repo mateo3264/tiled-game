@@ -78,17 +78,16 @@ class Game:
 
         self.load_data()
 
-        self.trees_locations = TREES_LOCATIONS
-        self.houses_locations = HOUSES_LOCATIONS
-        self.doors_locations = DOORS_LOCATIONS
-
+        self.locations = LOCATIONS
+        
         n_houses = 0
-        for level, coords in self.houses_locations.items():
+        for level, coords in self.locations['houses'].items():
             n_houses += len(coords)
         
         print('n_houses: ', n_houses)
         
         self.number_of_notes = 1
+        delete_score_images(self.snd_folder)
         self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt', self.number_of_notes) for _ in range(n_houses)]
 
         self.range_of_notes = RANGE_OF_NOTES
@@ -98,6 +97,8 @@ class Game:
         #self.midi_player = MidiPlayer(self)
         self.curr_midi_note_idx = 0
         self.curr_midi_note = None
+
+        self.pickup_coin_snd = pg.mixer.Sound('Pickup_coin.wav')
         
     def load_data(self):
         
@@ -150,13 +151,24 @@ class Game:
         self.c_note_img = pg.image.load(path.join(img_folder, C_IMG)).convert_alpha()
         self.house_img = pg.image.load(path.join(img_folder, HOUSE_IMG)).convert_alpha()
         self.door_img = pg.image.load(path.join(img_folder, DOOR_IMG)).convert_alpha()
+        self.spritesheet = Spritesheet(path.join(img_folder, 'spritesheet_jumper.png'))
+
+    def spawn_coins(self):
+        for x, y in self.locations['coins'][self.current_level]:
+            Coin(self, x, y)
         
+    def delete_coins(self):
+        for x, y in self.locations['coins'][self.current_level]:
+            for coin in self.coins:
+                if coin.pos.x == x and coin.pos.y == y:
+                    coin.kill()   
+
     def spawn_trees(self):
-        for x, y in self.trees_locations[self.current_level]:
+        for x, y in self.locations['trees'][self.current_level]:
             GrowingTree(self, x, y)
     
     def delete_trees(self):
-        for x, y in self.trees_locations[self.current_level]:
+        for x, y in self.locations['trees'][self.current_level]:
             for growing_tree in self.growing_trees_group:
                 if growing_tree.pos.x == x and growing_tree.pos.y == y:
                     growing_tree.kill()
@@ -164,22 +176,22 @@ class Game:
         
 
     def spawn_houses(self):
-        for i, args in enumerate(self.houses_locations[self.current_level]):
+        for i, args in enumerate(self.locations['houses'][self.current_level]):
             House(self, *args, self.seq_notes[i], i + 1)
     
     def delete_houses(self):
-        for x, y in self.houses_locations[self.current_level]:
+        for x, y in self.locations['houses'][self.current_level]:
             for house in self.houses:
                 if house.pos.x == x and house.pos.y == y:
                     house.kill()
     
     def spawn_doors(self):
         
-        for loc in self.doors_locations[self.current_level]:
+        for loc in self.locations['doors'][self.current_level]:
             Door(self, *loc)
 
     def delete_doors(self):
-        for x, y in self.doors_locations[self.current_level]:
+        for x, y in self.locations['doors'][self.current_level]:
             for door in self.doors:
                 if door.pos.x == x and door.pos.y == y:
                     door.kill()
@@ -194,6 +206,9 @@ class Game:
         
         spawn_mob_object(self, 100, 300)
         
+        self.spawn_coins()
+        
+
         self.spawn_trees()
         
         self.spawn_houses()
@@ -207,6 +222,7 @@ class Game:
             self.delete_trees()
             self.delete_houses()
             self.delete_doors()
+            self.delete_coins()
             self.walls = pg.sprite.Group()
             self.current_level = level
             
@@ -214,6 +230,7 @@ class Game:
 
 
     def new(self):
+        
         self.playing = True
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
@@ -222,6 +239,9 @@ class Game:
         self.growing_trees_group = pg.sprite.Group()
         self.houses = pg.sprite.Group()
         self.doors = pg.sprite.Group()
+        self.coins = pg.sprite.Group()
+
+        self.number_of_coins_gained = 0
 
         self.last_update = 0
 
@@ -277,7 +297,7 @@ class Game:
             if event.type == pg.QUIT:
                 self.playing = False
                 self.running = False
-                delete_score_images(self.snd_folder)
+                
             
             if event.type == pg.KEYDOWN:
                 
