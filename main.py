@@ -9,7 +9,7 @@ from os import path
 from tilemap import *
 from pygame import midi
 from midipatternspkg.draw_text import draw_image_bubble, draw_speech_bubble
-from midipatternspkg.music_note_creation import create_seq_notes, RANGE_OF_NOTES, NUMBER_OF_NOTES
+from midipatternspkg.music_note_creation import create_seq_notes, RANGE_OF_NOTES
 # from utils.play_midi_notes import MidiPlayer
 # from utils.spritesheet import Spritesheet
 
@@ -52,6 +52,8 @@ def spawn_scene_object(game, gid, x, y):
 def spawn_mob_object(game, x, y):
     Mob(game, x, y)
 
+
+
 class Game:
     def __init__(self):
         self.running = True
@@ -83,10 +85,11 @@ class Game:
             n_houses += len(coords)
         
         print('n_houses: ', n_houses)
-        self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt') for _ in range(n_houses)]
+        
+        self.number_of_notes = 1
+        self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt', self.number_of_notes) for _ in range(n_houses)]
 
         self.range_of_notes = RANGE_OF_NOTES
-        self.number_of_notes = NUMBER_OF_NOTES
     def load_audio_data(self):
         # todo: generalize not only to houses but to "places to enter"
         
@@ -317,15 +320,15 @@ class Game:
             hit.health -= BULLET_DAMAGE 
             hit.vel = vec(0, 0)
 
-        house_hits = pg.sprite.spritecollide(self.player, self.houses, False, collide_hit_rect)
+        # house_hits = pg.sprite.spritecollide(self.player, self.houses, False, collide_hit_rect)
 
-        if house_hits:
-            self.curr_house = house_hits[0]
-            self.draw_score = True
-            draw_image_bubble(self.screen, (500, 700), self.score_imgs[self.curr_house.scene - 1])
-        else:
-            self.curr_house = None
-            self.draw_score = False
+        # if house_hits:
+        #     self.curr_house = house_hits[0]
+        #     self.draw_score = True
+        #     draw_image_bubble(self.screen, (500, 700), self.score_imgs[self.curr_house.scene - 1])
+        # else:
+        #     self.curr_house = None
+        #     self.draw_score = False
         
         door_hits = pg.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
 

@@ -6,7 +6,8 @@ from tilemap import collide_hit_rect
 from pygame import midi
 import sys
 
-sys.path.append('..')
+
+
 
 vec = pg.math.Vector2
 
@@ -15,7 +16,7 @@ vec = pg.math.Vector2
 
 from midipatternspkg.patterns import PatternChecker2
 
-from midipatternspkg.draw_text import draw_speech_bubble
+from midipatternspkg.draw_text import draw_speech_bubble, draw_image_bubble
 
 
 
@@ -477,6 +478,16 @@ class House(pg.sprite.Sprite):
         
         self.hit_rect.center = self.pos
         self.rect.center = self.hit_rect.center
+
+        house_hits = pg.sprite.spritecollide(self.game.player, self.game.houses, False, collide_hit_rect)
+
+        if house_hits:
+            self.game.curr_house = house_hits[0]
+            self.game.draw_score = True
+            draw_image_bubble(self.game.screen, (500, 700), self.game.score_imgs[self.game.curr_house.scene - 1])
+        else:
+            self.game.curr_house = None
+            self.game.draw_score = False
 
 
 #class to change colors with piano
