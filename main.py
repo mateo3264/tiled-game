@@ -52,7 +52,9 @@ def spawn_scene_object(game, gid, x, y):
 def spawn_mob_object(game, x, y):
     Mob(game, x, y)
 
-
+def delete_score_images(ruta):
+    for file in os.listdir(ruta):
+        os.remove(path.join(ruta, file))
 
 class Game:
     def __init__(self):
@@ -275,6 +277,7 @@ class Game:
             if event.type == pg.QUIT:
                 self.playing = False
                 self.running = False
+                delete_score_images(self.snd_folder)
             
             if event.type == pg.KEYDOWN:
                 
