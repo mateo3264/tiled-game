@@ -66,3 +66,5 @@ HOUSE_IMG = 'medievalStructure_17.png'
 
 
 DOOR_IMG = 'door.png'
+
+FONT_NAME = 'fixedsys'

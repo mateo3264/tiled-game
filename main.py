@@ -91,6 +91,8 @@ class Game:
         self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt', self.number_of_notes) for _ in range(n_houses)]
 
         self.range_of_notes = RANGE_OF_NOTES
+
+        self.font_name = pg.font.match_font(FONT_NAME)   
     def load_audio_data(self):
         # todo: generalize not only to houses but to "places to enter"
         
@@ -365,11 +367,14 @@ class Game:
 
     
     
-    def draw_grid(self):
-        for x in range(0, WIDTH, TILESIZE):
-            pg.draw.line(self.screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, TILESIZE):
-            pg.draw.line(self.screen, LIGHTGRAY, (0, y), (WIDTH, y))
+
+    def draw_text(self, text, size, color, x, y):
+        font = pg.font.Font(self.font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        self.screen.blit(text_surface, text_rect)
+
 
     def draw(self):
         
@@ -398,8 +403,7 @@ class Game:
         if self.draw_score:
             draw_image_bubble(self.screen, (500, 700),  self.score_imgs[self.curr_house.scene - 1])
             
-        # score = self.score.get_image(0, 0, 350, 120)
-        # self.screen.blit(score, (200, 0))
+        self.draw_text(f'Coins: {self.number_of_coins_gained}', 25, WHITE, WIDTH - 70, 50)
         pg.display.flip()
     
     def show_start_screen(self):
