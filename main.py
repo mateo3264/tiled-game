@@ -56,6 +56,9 @@ def delete_score_images(ruta):
     for file in os.listdir(ruta):
         os.remove(path.join(ruta, file))
 
+
+
+
 class Game:
     def __init__(self):
         self.running = True
@@ -69,10 +72,16 @@ class Game:
             self.playing_with_piano = True
         except:
             self.playing_with_piano = False
+        
+        if self.playing_with_piano:
+            
+            self.midi_output = midi.Output(0)
+            self.midi_output.set_instrument(1)
+            
 
        
 
-        self.midi_output = midi.Output(2)
+        
 
         self.player_text = False
 
@@ -101,6 +110,7 @@ class Game:
         self.curr_midi_note = None
 
         self.pickup_coin_snd = pg.mixer.Sound('Pickup_coin.wav')
+        self.pickup_coin2_snd = pg.mixer.Sound('Pickup_coin2.wav')
         
     def load_data(self):
         
@@ -154,6 +164,17 @@ class Game:
         self.house_img = pg.image.load(path.join(img_folder, HOUSE_IMG)).convert_alpha()
         self.door_img = pg.image.load(path.join(img_folder, DOOR_IMG)).convert_alpha()
         self.spritesheet = Spritesheet(path.join(img_folder, 'spritesheet_jumper.png'))
+        self.spritesheet_chest = Spritesheet(path.join(img_folder, 'chest.png'))
+
+    def spawn_chests(self):
+        for x, y in self.locations['chests'][self.current_level]:
+            Chest(self, x, y)
+    
+    def delete_chests(self):
+        for x, y in self.locations['chests'][self.current_level]:
+            for chest in self.chests:
+                if chest.pos.x == x and chest.pos.y == y:
+                    chest.kill()
 
     def spawn_coins(self):
         for x, y in self.locations['coins'][self.current_level]:
@@ -209,6 +230,8 @@ class Game:
         spawn_mob_object(self, 100, 300)
         
         self.spawn_coins()
+
+        self.spawn_chests()
         
 
         self.spawn_trees()
@@ -225,6 +248,8 @@ class Game:
             self.delete_houses()
             self.delete_doors()
             self.delete_coins()
+            self.delete_chests()
+
             self.walls = pg.sprite.Group()
             self.current_level = level
             
@@ -242,6 +267,8 @@ class Game:
         self.houses = pg.sprite.Group()
         self.doors = pg.sprite.Group()
         self.coins = pg.sprite.Group()
+        self.chests = pg.sprite.Group()
+        
 
         self.number_of_coins_gained = 0
 
@@ -323,7 +350,10 @@ class Game:
     
     def update(self):
         #self.curr_midi_note = self.midi_player.play_midi_note()
-        
+        if self.playing_with_piano:
+            if self.midi_input.poll():
+                midi_events = self.midi_input.read(15)
+                self.midi2events = midi.midis2events(midi_events, 1)
         self.all_sprites.update()
         self.camera.update(self.player)
     

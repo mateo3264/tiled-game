@@ -1,7 +1,7 @@
 from settings import *
 from locations import *
 import pygame as pg
-from random import uniform, choice
+from random import uniform, choice, randrange
 from tilemap import collide_hit_rect
 from pygame import midi
 import sys
@@ -130,12 +130,12 @@ class Player(pg.sprite.Sprite):
             self.pos.y += dy
 
     def piano_update(self):
-        self.rot_speed = 0
-        self.vel = vec(0, 0)
+            self.rot_speed = 0
+            self.vel = vec(0, 0)
 
-        if self.game.midi_input.poll():
+        # if self.game.midi_input.poll():
             midi_events = self.game.midi_input.read(15)
-            midi2events = midi.midis2events(midi_events, 1)
+            midi2events = self.game.midi2events#midi.midis2events(midi_events, 1)
 
             # dir, volume = self.pattern_checker1.check_pattern(midi2events, type='arpegios')
             shot = self.pattern_checker1.check_pattern(midi2events, type='chord')
@@ -622,3 +622,116 @@ class Coin(pg.sprite.Sprite):
 
             print(f'Coins: {self.game.number_of_coins_gained}')
             self.game.pickup_coin_snd.play()
+
+
+class Chest(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.chests
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game 
+
+        self.chest_images = [
+            self.game.spritesheet_chest.get_image(0, 0, 32, 32),
+            self.game.spritesheet_chest.get_image(32, 0, 32, 32)
+        ]
+
+        for i, chest in enumerate(self.chest_images):
+            # chest.set_colorkey(BLACK)
+            rect = chest.get_rect()
+            self.chest_images[i] = pg.transform.scale(chest, (rect.width * 3, rect.height * 3))
+            
+
+        self.curr_img_idx = 0
+        self.image = self.chest_images[self.curr_img_idx]
+
+        self.rect = self.image.get_rect()
+
+        self.pos = vec(x, y)
+
+        self.rect.center = self.pos
+
+        self.hit_rect = self.rect
+
+        self.last_update = 0 
+        self.last_midi_update = 0 
+
+        self.number_of_coin_sounds = 0 
+
+        self.latency_between_notes = 100
+
+        self.notes = [60, 61 + randrange(12)]
+        self.curr_notes_idx = 0
+
+        self.curr_player_notes_idx = 0
+
+        self.pattern_checker = PatternChecker2(self.notes)
+
+        self.correct_interval_execution = False
+    
+    def play_interval(self, now):
+        if self.curr_notes_idx < len(self.notes):
+            if now - self.last_midi_update > self.latency_between_notes:
+                self.last_midi_update = now
+                self.game.midi_output.note_on(self.notes[self.curr_notes_idx], 100)
+                self.curr_notes_idx += 1
+            
+
+    def update(self):
+
+        now = pg.time.get_ticks()
+
+        self.rect.center = self.pos
+
+        self.hit_rect = self.rect
+
+        hits = pg.sprite.spritecollide(self.game.player, self.game.chests, False, collide_hit_rect)
+
+        if hits:
+            
+
+            
+
+            self.play_interval(now)
+
+        
+            
+        
+            
+
+            if self.curr_player_notes_idx == len(self.notes) \
+                and self.correct_interval_execution:
+                    self.curr_img_idx = 1
+                    
+                    self.image = self.chest_images[self.curr_img_idx]
+                    center = self.rect.center
+                    self.rect = self.image.get_rect()
+                    self.rect.center = center
+                    if now - self.last_update> 100:
+                        self.last_update = now 
+                        self.number_of_coin_sounds += 1
+                        
+                        if self.number_of_coin_sounds < 10:
+                            self.game.pickup_coin2_snd.play()
+                            
+                            
+                            self.game.number_of_coins_gained += 1
+                        else:
+                            self.correct_interval_execution = False
+                            self.curr_player_notes_idx = 0
+                            
+            
+            notes = self.pattern_checker.check_pattern(self.game.midi2events, type='check-note', just_once=False)
+            # if notes:
+            #     print('played notes', notes)
+            #     print('curr note', self.notes[self.curr_player_notes_idx])
+            if self.curr_img_idx == 0:
+                if self.notes[self.curr_player_notes_idx] in notes:
+                    
+                    self.curr_player_notes_idx += 1
+                    self.correct_interval_execution = True
+                else:
+                    self.correct_interval_execution = False
+
+            
