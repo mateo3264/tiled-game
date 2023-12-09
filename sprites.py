@@ -672,6 +672,8 @@ class Chest(pg.sprite.Sprite):
 
         self.number_coins_to_gain = randrange(5, 16)
         self.number_coins_obtained = 0
+
+        
     
     def play_interval(self, now):
         if self.curr_notes_idx < len(self.notes):
@@ -693,32 +695,29 @@ class Chest(pg.sprite.Sprite):
 
         if hits:
             
-
-            
-
             self.play_interval(now)
 
-        
-            
-        
-            
-
-            
-                            
-            
             notes = self.pattern_checker.check_pattern(self.game.midi2events, type='check-note', just_once=False)
-            # if notes:
-            #     print('played notes', notes)
-            #     print('curr note', self.notes[self.curr_player_notes_idx])
-            if self.curr_img_idx == 0:
-                if self.notes[self.curr_player_notes_idx] in notes:
-                    
-                    self.curr_player_notes_idx += 1
-                    self.correct_interval_execution = True
-                else:
-                    self.correct_interval_execution = False
+            if notes:
+                
+                if self.curr_img_idx == 0:
+                    if self.notes[self.curr_player_notes_idx] in notes:
+                        
+                        self.curr_player_notes_idx += 1
+                        self.correct_interval_execution = True
+                    else:
+                        self.correct_interval_execution = False
+                        self.curr_player_notes_idx = 0
+                        if self.number_coins_to_gain > 6:
+                            self.number_coins_to_gain -= 2 
+                            print('self.number_coins_to_gain')
+                            print(self.number_coins_to_gain)
         else:
             self.curr_notes_idx = 0
+            self.curr_player_notes_idx = 0
+            self.curr_img_idx = 0
+            
+            
         
         if self.curr_player_notes_idx == len(self.notes) \
                 and self.correct_interval_execution:
