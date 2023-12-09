@@ -576,8 +576,11 @@ class Coin(pg.sprite.Sprite):
         self.idx_curr_img = 0
         self.image = self.coin_images[self.idx_curr_img]
 
-        for image in self.coin_images:
+        for i, image in enumerate(self.coin_images):
             image.set_colorkey(BLACK)
+            rect = image.get_rect()
+            self.coin_images[i] = pg.transform.scale(image, (rect.width // 2, rect.height // 2))
+            
 
         self.rect = self.image.get_rect()
 
