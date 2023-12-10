@@ -167,8 +167,8 @@ class Game:
         self.spritesheet_chest = Spritesheet(path.join(img_folder, 'chest.png'))
 
     def spawn_chests(self):
-        for x, y in self.locations['chests'][self.current_level]:
-            Chest(self, x, y)
+        for i, (x, y) in enumerate(self.locations['chests'][self.current_level]):
+            Chest(self, x, y, i)
     
     def delete_chests(self):
         for x, y in self.locations['chests'][self.current_level]:

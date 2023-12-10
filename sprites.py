@@ -625,12 +625,14 @@ class Coin(pg.sprite.Sprite):
 
 
 class Chest(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, id):
         self.groups = game.all_sprites, game.chests
 
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game 
+
+        self.id = id
 
         self.chest_images = [
             self.game.spritesheet_chest.get_image(0, 0, 32, 32),
@@ -694,24 +696,25 @@ class Chest(pg.sprite.Sprite):
         hits = pg.sprite.spritecollide(self.game.player, self.game.chests, False, collide_hit_rect)
 
         if hits:
+            if hits[0].id == self.id:
             
-            self.play_interval(now)
+                self.play_interval(now)
 
-            notes = self.pattern_checker.check_pattern(self.game.midi2events, type='check-note', just_once=False)
-            if notes:
-                
-                if self.curr_img_idx == 0:
-                    if self.notes[self.curr_player_notes_idx] in notes:
-                        
-                        self.curr_player_notes_idx += 1
-                        self.correct_interval_execution = True
-                    else:
-                        self.correct_interval_execution = False
-                        self.curr_player_notes_idx = 0
-                        if self.number_coins_to_gain > 6:
-                            self.number_coins_to_gain -= 2 
-                            print('self.number_coins_to_gain')
-                            print(self.number_coins_to_gain)
+                notes = self.pattern_checker.check_pattern(self.game.midi2events, type='check-note', just_once=False)
+                if notes:
+                    
+                    if self.curr_img_idx == 0:
+                        if self.notes[self.curr_player_notes_idx] in notes:
+                            
+                            self.curr_player_notes_idx += 1
+                            self.correct_interval_execution = True
+                        else:
+                            self.correct_interval_execution = False
+                            self.curr_player_notes_idx = 0
+                            if self.number_coins_to_gain > 6:
+                                self.number_coins_to_gain -= 2 
+                                print('self.number_coins_to_gain')
+                                print(self.number_coins_to_gain)
         else:
             self.curr_notes_idx = 0
             self.curr_player_notes_idx = 0
