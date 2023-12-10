@@ -396,9 +396,22 @@ class GrowingTree(pg.sprite.Sprite):
 
         self.game = game
 
-        self.gid = 7
+        self.initial_gid = 12
+        self.gid = self.initial_gid
         self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
+        
+        # for tileset in self.game.map_info[0]['map'].tmxdata.from_xml_string('183'):
+        #     print('name: ', tileset.name)
+        #     print('properties: ', tileset.properties)
+        #     print('tilecount: ', tileset.tilecount)
+        #     print('height: ', tileset.height)
+        #     print('width: ', tileset.width)
+        #     print('tilewidth: ', tileset.tilewidth)
+        #     print('tileheight: ', tileset.tileheight)
+        #     print(dir(tileset))
 
+        
+        
         self.rect = self.image.get_rect()
 
         self.pos = vec(x, y)
@@ -416,9 +429,23 @@ class GrowingTree(pg.sprite.Sprite):
 
         self.hit_rect = self.rect
 
+        self.last_gid_update = 0
+
     def update(self):
         now = pg.time.get_ticks()
 
+        # if now - self.last_gid_update > 5000:
+        #     self.last_gid_update = now
+        #     self.gid += 1
+        #     print(self.gid)
+        #     self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
+        #     props = self.game.map_info[0]['map'].tmxdata.get_tile_properties_by_gid(self.gid)
+        #     print('props')
+        #     print(props)
+            
+            # print('self.image', self.image)
+            # print('type', type(self.image))
+            #print('type', self.game.map_info[0]['map'].tmxdata.get_tile_image(0, 0, 0))
         if now - self.last_update > self.time_to_change:
             for wall in enumerate(self.game.walls):
                         
@@ -427,7 +454,7 @@ class GrowingTree(pg.sprite.Sprite):
                     if wall[1].x == self.pos.x and wall[1].y == self.pos.y:
                         
                         wall[1].kill()
-            if self.gid == 11:
+            if self.gid == self.initial_gid + 2:
                 self.kill()
                 return
 
@@ -684,6 +711,11 @@ class Chest(pg.sprite.Sprite):
                 self.game.midi_output.note_on(self.notes[self.curr_notes_idx], 100)
                 self.curr_notes_idx += 1
             
+    def change_img(self):
+        self.image = self.chest_images[self.curr_img_idx]
+        center = self.rect.center
+        self.rect = self.image.get_rect()
+        self.rect.center = center
 
     def update(self):
 
@@ -697,15 +729,18 @@ class Chest(pg.sprite.Sprite):
 
         if hits:
             if hits[0].id == self.id:
-            
-                self.play_interval(now)
+                if self.curr_img_idx == 0:
+                    self.play_interval(now)
 
                 notes = self.pattern_checker.check_pattern(self.game.midi2events, type='check-note', just_once=False)
                 if notes:
                     
                     if self.curr_img_idx == 0:
+                        print('player notes ', notes)
+                        print('notes ', self.notes[self.curr_player_notes_idx])
+
                         if self.notes[self.curr_player_notes_idx] in notes:
-                            
+                            print('ENTERED')
                             self.curr_player_notes_idx += 1
                             self.correct_interval_execution = True
                         else:
@@ -715,21 +750,23 @@ class Chest(pg.sprite.Sprite):
                                 self.number_coins_to_gain -= 2 
                                 print('self.number_coins_to_gain')
                                 print(self.number_coins_to_gain)
+                
+
         else:
             self.curr_notes_idx = 0
             self.curr_player_notes_idx = 0
-            self.curr_img_idx = 0
+            
             
             
         
         if self.curr_player_notes_idx == len(self.notes) \
                 and self.correct_interval_execution:
+                    
+                        
+
                     self.curr_img_idx = 1
                     
-                    self.image = self.chest_images[self.curr_img_idx]
-                    center = self.rect.center
-                    self.rect = self.image.get_rect()
-                    self.rect.center = center
+                    self.change_img()
                     if now - self.last_update> 100:
                         self.last_update = now 
                         self.number_of_coin_sounds += 1
@@ -743,7 +780,11 @@ class Chest(pg.sprite.Sprite):
                             self.game.number_of_coins_gained += 1
                             self.number_coins_obtained += 1
                         else:
+                            
                             self.correct_interval_execution = False
+                                
+                            self.curr_notes_idx = 0
                             self.curr_player_notes_idx = 0
                             self.number_coins_obtained = 0
-            
+                            
+                

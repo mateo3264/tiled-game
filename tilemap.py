@@ -23,13 +23,14 @@ class Map:
 class TiledMap:
     def __init__(self, filename):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
+        
         self.width = tm.width * tm.tilewidth
         self.height = tm.height * tm.tileheight
         self.tmxdata = tm
     
     def render(self, surface):
         ti = self.tmxdata.get_tile_image_by_gid
-        
+        # pytmx.load_pygame(filename)
         for layer in self.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
