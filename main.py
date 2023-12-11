@@ -161,6 +161,7 @@ class Game:
         self.door_img = pg.image.load(path.join(self.img_folder, DOOR_IMG)).convert_alpha()
         self.spritesheet = Spritesheet(path.join(self.img_folder, 'spritesheet_jumper.png'))
         self.spritesheet_chest = Spritesheet(path.join(self.img_folder, 'chest.png'))
+        
 
     
 

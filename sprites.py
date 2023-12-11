@@ -516,7 +516,7 @@ class House(pg.sprite.Sprite):
         if house_hits:
             self.game.curr_house = house_hits[0]
             self.game.draw_score = True
-            draw_image_bubble(self.game.screen, (500, 700), self.game.score_imgs[self.game.curr_house.scene - 1])
+            #draw_image_bubble(self.game.screen, (500, 700), self.game.score_imgs[self.game.curr_house.scene - 1])
         else:
             self.game.curr_house = None
             self.game.draw_score = False
