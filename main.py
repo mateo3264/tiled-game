@@ -124,7 +124,8 @@ class Game:
 
         for file in os.listdir(map_folder):
             if '.tmx' in file:
-                map = TiledMap(path.join(map_folder, f'tiled{idx}.tmx'))
+                
+                map = TiledMap(path.join(map_folder, file))
                 map_img = map.make_map()
                 map_rect = map_img.get_rect()
                 d = {'map': map, 'map_img':map_img, 'map_rect':map_rect}
