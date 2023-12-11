@@ -4,12 +4,15 @@ import os
 import pygame as pg
 from settings import *
 from sprites import *
-from locations import *
+#from locations import *
 from os import path
 from tilemap import *
 from pygame import midi
 from midipatternspkg.draw_text import draw_image_bubble, draw_speech_bubble
 from midipatternspkg.music_note_creation import create_seq_notes, RANGE_OF_NOTES
+
+from automatic_house_creation import create_house_interior
+import json
 # from utils.play_midi_notes import MidiPlayer
 # from utils.spritesheet import Spritesheet
 
@@ -87,13 +90,17 @@ class Game:
 
         self.load_data()
 
-        self.locations = LOCATIONS
+        self.locations = json.load(open('locations.json', 'r', encoding='utf-8'))
+        print('self.locations')
+        print(self.locations)
         
+        self.generate_home_interiors()
+        self.locations = json.load(open('locations.json', 'r', encoding='utf-8'))
         n_houses = 0
         for level, coords in self.locations['houses'].items():
             n_houses += len(coords)
         
-        print('n_houses: ', n_houses)
+        # print('n_houses: ', n_houses)
         
         self.number_of_notes = 1
         delete_score_images(self.snd_folder)
@@ -118,43 +125,23 @@ class Game:
         img_folder = path.join(game_folder, 'img')
         self.snd_folder = path.join(game_folder, 'snd')
 
-        map_folder = path.join(game_folder, 'maps')
-        self.map_info = []
+        self.map_folder = path.join(game_folder, 'maps')
+        self.map_info = {}
         idx = 1
 
-        for file in os.listdir(map_folder):
+        for file in os.listdir(self.map_folder):
             if '.tmx' in file:
                 
-                map = TiledMap(path.join(map_folder, file))
+                map = TiledMap(path.join(self.map_folder, file))
                 map_img = map.make_map()
                 map_rect = map_img.get_rect()
                 d = {'map': map, 'map_img':map_img, 'map_rect':map_rect}
-                self.map_info.append(d)
+                self.map_info[file[:-4]] = d
                 idx += 1
 
         print('self.map_info')
         print(self.map_info)
 
-        # self.map = TiledMap(path.join(map_folder, 'tiled1.tmx'))
-        # self.map2 = TiledMap(path.join(map_folder, 'tiled2.tmx'))
-        # self.map3 = TiledMap(path.join(map_folder, 'tiled3.tmx'))
-        
-        # self.current_map = self.map
-        # #self.score = Spritesheet(path.join(img_folder, 'score1.png'))
-
-        # self.map_img = self.map.make_map()
-        
-        # self.map2_img = self.map2.make_map()
-        # self.map3_img = self.map3.make_map()
-        # self.map_rect = self.map_img.get_rect()
-        
-        # self.map2_rect = self.map2_img.get_rect()
-        # self.map3_rect = self.map3_img.get_rect()
-
-        # self.map_list = [{'map':self.map, 'map_img':self.map_img, 'map_rect':self.map_rect}, 
-        #              {'map':self.map2, 'map_img':self.map2_img, 'map_rect':self.map2_rect},
-        #              {'map':self.map3, 'map_img':self.map3_img, 'map_rect':self.map3_rect},
-        #             ]
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
@@ -167,8 +154,29 @@ class Game:
         self.spritesheet = Spritesheet(path.join(img_folder, 'spritesheet_jumper.png'))
         self.spritesheet_chest = Spritesheet(path.join(img_folder, 'chest.png'))
 
+    
+
+    def generate_home_interiors(self):
+        n_houses = 0
+        for level, house_coors in self.locations['houses'].items():
+            n_houses += len(house_coors)
+        
+        n_house_tmx_files = count_number_house_tmx_files(self.map_folder)
+
+        while n_houses > n_house_tmx_files:
+            create_house_interior()
+            n_house_tmx_files = count_number_house_tmx_files(self.map_folder)
+
+        
+        
+
     def spawn_chests(self):
+        print('self.current_level')
+        print(self.current_level)
+        print("self.locations['chests'][self.current_level]")
+        print(self.locations['chests'][self.current_level])
         for i, (x, y) in enumerate(self.locations['chests'][self.current_level]):
+            print('x,y', x, y)
             Chest(self, x, y, i)
     
     def delete_chests(self):
@@ -201,7 +209,7 @@ class Game:
 
     def spawn_houses(self):
         for i, args in enumerate(self.locations['houses'][self.current_level]):
-            House(self, *args, self.seq_notes[i], i + 1)
+            House(self, *args, self.seq_notes[i], f'house_interior{i + 1}')
     
     def delete_houses(self):
         for x, y in self.locations['houses'][self.current_level]:
@@ -221,13 +229,16 @@ class Game:
                     door.kill()
 
     def spawn_level(self):
+        self.player = None
         for tile_obj in self.map_info[self.current_level]['map'].tmxdata.objects:
             if tile_obj.name == 'player':
                 self.player = Player(self, tile_obj.x, tile_obj.y)
             elif tile_obj.name == 'wall':
                 Obstacle(self, tile_obj.x, tile_obj.y,
                          tile_obj.width, tile_obj.height)
-        self.player = Player(self, 10, 10)
+        
+        if self.player is None:
+            self.player = Player(self, 10, 10)
         spawn_mob_object(self, 100, 300)
         
         self.spawn_coins()
@@ -241,7 +252,7 @@ class Game:
         
         self.spawn_doors()
 
-    def change_level(self, level):
+    def change_level(self, scene):
             
             self.player.kill()
 
@@ -252,7 +263,7 @@ class Game:
             self.delete_chests()
 
             self.walls = pg.sprite.Group()
-            self.current_level = level
+            self.current_level = scene
             
             self.spawn_level()
 
@@ -280,7 +291,7 @@ class Game:
         self.level_idx = 0
 
 
-        self.current_level = 3
+        self.current_level = 'level1'
 
         self.curr_house = None
 
@@ -295,7 +306,7 @@ class Game:
         
         
         
-        self.camera = Camera(self.map_info[0]['map'].width, self.map_info[0]['map'].height)
+        self.camera = Camera(self.map_info['level1']['map'].width, self.map_info['level1']['map'].height)
         
         self.spawn_level()        
 
@@ -390,7 +401,7 @@ class Game:
 
         if door_hits:
             
-            self.change_level(0)
+            self.change_level('level1')
         
 
 

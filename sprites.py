@@ -1,10 +1,11 @@
 from settings import *
-from locations import *
+
 import pygame as pg
 from random import uniform, choice, randrange
 from tilemap import collide_hit_rect
 from pygame import midi
 import sys
+import os
 
 
 
@@ -27,7 +28,13 @@ vec = pg.math.Vector2
 
                 
 
-
+def count_number_house_tmx_files(map_folder):
+        n_house_tmx_files = 0
+        for file in os.listdir(map_folder):
+            if '.tmx' in file:
+                if 'house_interior' in file:
+                    n_house_tmx_files += 1
+        return n_house_tmx_files
 
 class Spritesheet:
     def __init__(self, filename):
@@ -169,7 +176,7 @@ class Player(pg.sprite.Sprite):
                     
                     self.game.notes2enter_house = []
                     self.game.curr_house.curr_midi_note_idx = 0
-                    self.game.change_level(self.game.curr_house.scene)
+                    self.game.change_level(self.game.curr_house.interior)
 
             if shot:
                 dir = vec(1, 0).rotate(-self.rot)
@@ -398,7 +405,7 @@ class GrowingTree(pg.sprite.Sprite):
 
         self.initial_gid = 12
         self.gid = self.initial_gid
-        self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
+        self.image = self.game.map_info['level1']['map'].tmxdata.get_tile_image_by_gid(self.gid)
         
         # for tileset in self.game.map_info[0]['map'].tmxdata.from_xml_string('183'):
         #     print('name: ', tileset.name)
@@ -433,19 +440,6 @@ class GrowingTree(pg.sprite.Sprite):
 
     def update(self):
         now = pg.time.get_ticks()
-
-        # if now - self.last_gid_update > 5000:
-        #     self.last_gid_update = now
-        #     self.gid += 1
-        #     print(self.gid)
-        #     self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
-        #     props = self.game.map_info[0]['map'].tmxdata.get_tile_properties_by_gid(self.gid)
-        #     print('props')
-        #     print(props)
-            
-            # print('self.image', self.image)
-            # print('type', type(self.image))
-            #print('type', self.game.map_info[0]['map'].tmxdata.get_tile_image(0, 0, 0))
         if now - self.last_update > self.time_to_change:
             for wall in enumerate(self.game.walls):
                         
@@ -461,7 +455,7 @@ class GrowingTree(pg.sprite.Sprite):
             self.last_update = now
             self.gid += 1 
             center = self.rect.center
-            self.image = self.game.map_info[0]['map'].tmxdata.get_tile_image_by_gid(self.gid)
+            self.image = self.game.map_info['level1']['map'].tmxdata.get_tile_image_by_gid(self.gid)
 
             self.rect = self.image.get_rect()
 
@@ -471,7 +465,7 @@ class GrowingTree(pg.sprite.Sprite):
             if self.gid > 9:
                 
                 Obstacle(self.game, self.pos.x, self.pos.y,
-                        self.game.map_info[0]['map'].tmxdata.width, self.game.map_info[0]['map'].tmxdata.height)
+                        self.game.map_info['level1']['map'].tmxdata.width, self.game.map_info['level1']['map'].tmxdata.height)
 
 
 class House(pg.sprite.Sprite):
@@ -487,7 +481,8 @@ class House(pg.sprite.Sprite):
         self.curr_midi_note_idx = 0
         self.curr_midi_note = self.midi_notes[self.curr_midi_note_idx]
 
-        self.scene = scene
+        self.interior = scene
+        self.scene = int(scene.split('house_interior')[-1])
 
         self.image = self.game.house_img
 
@@ -508,8 +503,8 @@ class House(pg.sprite.Sprite):
         self.hit_rect.height += 20  
 
         Obstacle(self.game, self.pos.x, self.pos.y,
-                 self.game.map_info[0]['map'].tmxdata.width,
-                 self.game.map_info[0]['map'].tmxdata.height)
+                 self.game.map_info['level1']['map'].tmxdata.width,
+                 self.game.map_info['level1']['map'].tmxdata.height)
     
     def update(self):
         #print(f'House {self.scene - 1}: {self.midi_notes}')
