@@ -13,6 +13,7 @@ from midipatternspkg.music_note_creation import create_seq_notes, RANGE_OF_NOTES
 
 from automatic_house_creation import create_house_interior
 import json
+import re
 # from utils.play_midi_notes import MidiPlayer
 # from utils.spritesheet import Spritesheet
 
@@ -88,24 +89,26 @@ class Game:
 
         self.player_text = False
 
-        self.load_data()
+        
 
         self.locations = json.load(open('locations.json', 'r', encoding='utf-8'))
         print('self.locations')
         print(self.locations)
-        
+        self.load_folders()
         self.generate_home_interiors()
+        self.load_data()
         self.locations = json.load(open('locations.json', 'r', encoding='utf-8'))
         n_houses = 0
         for level, coords in self.locations['houses'].items():
             n_houses += len(coords)
         
-        # print('n_houses: ', n_houses)
+        print('n_houses: ', n_houses)
         
         self.number_of_notes = 1
         delete_score_images(self.snd_folder)
         self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt', self.number_of_notes) for _ in range(n_houses)]
-
+        print('self.seq_notes')
+        print(self.seq_notes)
         self.range_of_notes = RANGE_OF_NOTES
 
         self.font_name = pg.font.match_font(FONT_NAME)   
@@ -118,14 +121,18 @@ class Game:
 
         self.pickup_coin_snd = pg.mixer.Sound('Pickup_coin.wav')
         self.pickup_coin2_snd = pg.mixer.Sound('Pickup_coin2.wav')
-        
-    def load_data(self):
+
+    def load_folders(self):
         
         game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'img')
+        self.img_folder = path.join(game_folder, 'img')
         self.snd_folder = path.join(game_folder, 'snd')
 
         self.map_folder = path.join(game_folder, 'maps')
+
+    def load_data(self):
+
+    
         self.map_info = {}
         idx = 1
 
@@ -136,6 +143,7 @@ class Game:
                 map_img = map.make_map()
                 map_rect = map_img.get_rect()
                 d = {'map': map, 'map_img':map_img, 'map_rect':map_rect}
+                
                 self.map_info[file[:-4]] = d
                 idx += 1
 
@@ -143,16 +151,16 @@ class Game:
         print(self.map_info)
 
 
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
-        self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
+        self.player_img = pg.image.load(path.join(self.img_folder, PLAYER_IMG)).convert_alpha()
+        self.wall_img = pg.image.load(path.join(self.img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
-        self.zombie_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
-        self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
-        self.c_note_img = pg.image.load(path.join(img_folder, C_IMG)).convert_alpha()
-        self.house_img = pg.image.load(path.join(img_folder, HOUSE_IMG)).convert_alpha()
-        self.door_img = pg.image.load(path.join(img_folder, DOOR_IMG)).convert_alpha()
-        self.spritesheet = Spritesheet(path.join(img_folder, 'spritesheet_jumper.png'))
-        self.spritesheet_chest = Spritesheet(path.join(img_folder, 'chest.png'))
+        self.zombie_img = pg.image.load(path.join(self.img_folder, MOB_IMG)).convert_alpha()
+        self.bullet_img = pg.image.load(path.join(self.img_folder, BULLET_IMG)).convert_alpha()
+        self.c_note_img = pg.image.load(path.join(self.img_folder, C_IMG)).convert_alpha()
+        self.house_img = pg.image.load(path.join(self.img_folder, HOUSE_IMG)).convert_alpha()
+        self.door_img = pg.image.load(path.join(self.img_folder, DOOR_IMG)).convert_alpha()
+        self.spritesheet = Spritesheet(path.join(self.img_folder, 'spritesheet_jumper.png'))
+        self.spritesheet_chest = Spritesheet(path.join(self.img_folder, 'chest.png'))
 
     
 
@@ -210,7 +218,9 @@ class Game:
     def spawn_houses(self):
         for i, args in enumerate(self.locations['houses'][self.current_level]):
             House(self, *args, self.seq_notes[i], f'house_interior{i + 1}')
-    
+        print('house midi notes')
+        print([house.midi_notes for house in self.houses])
+
     def delete_houses(self):
         for x, y in self.locations['houses'][self.current_level]:
             for house in self.houses:
@@ -229,6 +239,7 @@ class Game:
                     door.kill()
 
     def spawn_level(self):
+        
         self.player = None
         for tile_obj in self.map_info[self.current_level]['map'].tmxdata.objects:
             if tile_obj.name == 'player':
@@ -253,6 +264,7 @@ class Game:
         self.spawn_doors()
 
     def change_level(self, scene):
+            
             
             self.player.kill()
 
@@ -319,10 +331,18 @@ class Game:
 
 
         
-        self.score_imgs = [path.join(self.snd_folder, file) for file in os.listdir('./snd') if '.png' in file]
-        
+        self.score_imgs = sorted([path.join(self.snd_folder, file) for file in os.listdir('./snd') if '.png' in file])
+        print('self.score_imgs before')
+        print(self.score_imgs)
         
 
+        def natural_sort_key(s):
+            return [int(text) if text.isdigit() else text.lower() for text in re.split('([0-9]+)', s)]
+
+        self.score_imgs = sorted(self.score_imgs, key=natural_sort_key)        
+
+        print('self.score_imgs after')
+        print(self.score_imgs)
         self.midi_idx = 0
 
         while self.playing:

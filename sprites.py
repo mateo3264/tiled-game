@@ -159,7 +159,6 @@ class Player(pg.sprite.Sprite):
             
             if self.game.curr_house is not None:
                 
-                
                 if self.game.curr_house.curr_midi_note in notes and self.game.draw_score:
                     self.game.curr_house.curr_midi_note_idx = (self.game.curr_house.curr_midi_note_idx + 1) % len(self.game.curr_house.midi_notes)
                     self.game.curr_house.curr_midi_note = self.game.curr_house.midi_notes[self.game.curr_house.curr_midi_note_idx]
@@ -483,7 +482,7 @@ class House(pg.sprite.Sprite):
 
         self.interior = scene
         self.scene = int(scene.split('house_interior')[-1])
-
+        
         self.image = self.game.house_img
 
 

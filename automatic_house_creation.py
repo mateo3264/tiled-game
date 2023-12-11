@@ -10,11 +10,11 @@ from sprites import count_number_house_tmx_files
 def create_house_interior():
     width = 10
     height = 10
-    root = ET.Element("?xml")
-    root.set('version', '1.0')
-    root.set('encoding', 'utf-8')
+    #root = ET.Element("?xml")
+    #root.set('version', '1.0')
+    # root.set('encoding', 'utf-8')
 
-    mapa = ET.SubElement(root, 'map')
+    mapa = ET.Element('map')
     mapa.set('version', '1.10')
     mapa.set('tiledversion', '1.10.2')
     mapa.set('orientation', 'orthogonal')
@@ -135,7 +135,7 @@ def create_house_interior():
 
 
 
-    tree = ET.ElementTree(root)
+    tree = ET.ElementTree(mapa)
 
     n_house_interior_tmx_files = count_number_house_tmx_files('maps')
 
@@ -147,7 +147,7 @@ def create_house_interior():
     fullpath = os.path.join(path, house_interior + '.tmx')
     add_scene(house_interior)
     # Write the XML to a file
-    tree.write(fullpath)
+    tree.write(fullpath, xml_declaration=True, encoding='UTF-8')
 
 def add_scene(scene_name):
     file = open('locations.json', 'r', encoding='utf-8')
@@ -178,7 +178,7 @@ def add_scene(scene_name):
     json.dump(locations, file)
 
 # if __name__ == '__main__':
-#     add_scene('house_interior3')
+#     create_house_interior()
 
 
 
