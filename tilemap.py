@@ -73,3 +73,34 @@ class Camera:
         x = max(x, -(self.width - WIDTH))
         y = max(y, -(self.height - HEIGHT))
         self.camera = pg.Rect(x, y, self.width, self.height) 
+    
+
+# def create_tilemap():
+#     tmx_map = pytmx.TiledMap()
+#     tmx_map.width = 50
+#     tmx_map.height = 30
+#     tmx_map.tilewidth = 64
+#     tmx_map.tileheight = 64
+
+#     tileset = pytmx.TiledTileset()
+#     tileset.name = 'autotileset'
+#     tileset.firstgid = 1
+#     tileset.tilewidth = 64
+#     tileset.tileheight = 64
+#     tileset.spacing = 0
+#     tileset.margin = 0
+
+#     for i in range(1, 11):
+#         tile = pytmx.TiledTile()
+#         tile.id = i
+#         tileset.add_tile(tile)#?????
+    
+#     tmx_map.add_tileset(tileset)
+
+
+#     layer_data = [
+#         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+#         [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+#         # ... Add more rows as needed
+#     ]
+

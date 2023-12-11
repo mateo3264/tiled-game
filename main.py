@@ -226,7 +226,7 @@ class Game:
             elif tile_obj.name == 'wall':
                 Obstacle(self, tile_obj.x, tile_obj.y,
                          tile_obj.width, tile_obj.height)
-        
+        self.player = Player(self, 10, 10)
         spawn_mob_object(self, 100, 300)
         
         self.spawn_coins()
@@ -279,7 +279,7 @@ class Game:
         self.level_idx = 0
 
 
-        self.current_level = 0
+        self.current_level = 3
 
         self.curr_house = None
 
