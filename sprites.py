@@ -402,7 +402,7 @@ class GrowingTree(pg.sprite.Sprite):
 
         self.game = game
 
-        self.initial_gid = 12
+        self.initial_gid = 10
         self.gid = self.initial_gid
         self.image = self.game.map_info['level1']['map'].tmxdata.get_tile_image_by_gid(self.gid)
         
@@ -426,7 +426,7 @@ class GrowingTree(pg.sprite.Sprite):
 
         self.last_update = 0
 
-        self.time_to_change = 10000 
+        self.time_to_change = 20000 
         self.time_to_change += choice([x for x in 
                                        range(-1 * (self.time_to_change - self.time_to_change // 2), 
                                              self.time_to_change + self.time_to_change // 2, self.time_to_change // 10
@@ -447,7 +447,7 @@ class GrowingTree(pg.sprite.Sprite):
                     if wall[1].x == self.pos.x and wall[1].y == self.pos.y:
                         
                         wall[1].kill()
-            if self.gid == self.initial_gid + 2:
+            if self.gid == self.initial_gid + 4:
                 self.kill()
                 return
 
