@@ -97,6 +97,51 @@ def create_house_interior():
         obj.set('y', f'{lc[0] * 64 + 16}')
         obj.set('width', '32')
         obj.set('height', '30')
+    
+    idx = i + 2
+    obj = ET.SubElement(objectgroup, 'object')
+    obj.set('id', f'{idx}')
+    obj.set('name', 'wall')
+    obj.set('x', '0')
+    obj.set('y', '0')
+    obj.set('width', '16')
+    obj.set('height', '640')
+
+    idx += 1
+    obj = ET.SubElement(objectgroup, 'object')
+    obj.set('id', f'{idx}')
+    obj.set('name', 'wall')
+    obj.set('x', '624')
+    obj.set('y', '0')
+    obj.set('width', '16')
+    obj.set('height', '640')
+
+    idx += 1
+    obj = ET.SubElement(objectgroup, 'object')
+    obj.set('id', f'{idx}')
+    obj.set('name', 'wall')
+    obj.set('x', '16')
+    obj.set('y', '0')
+    obj.set('width', '608')
+    obj.set('height', '16')
+
+    idx += 1
+    obj = ET.SubElement(objectgroup, 'object')
+    obj.set('id', f'{idx}')
+    obj.set('name', 'wall')
+    obj.set('x', '16')
+    obj.set('y', '624')
+    obj.set('width', '608')
+    obj.set('height', '16')
+
+    idx += 1
+    obj = ET.SubElement(objectgroup, 'object')
+    obj.set('id', f'{idx}')
+    obj.set('name', 'player')
+    obj.set('x', '100')
+    obj.set('y', '400')
+    obj.set('width', '32')
+    obj.set('height', '32')
 
 
     layer2 = ET.SubElement(mapa, 'layer')

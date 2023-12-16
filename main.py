@@ -219,6 +219,7 @@ class Game:
     def spawn_houses(self):
         for i, args in enumerate(self.locations['houses'][self.current_level]):
             House(self, *args, self.seq_notes[i], f'house_interior{i + 1}')
+        
         print('house midi notes')
         print([house.midi_notes for house in self.houses])
 
@@ -243,15 +244,24 @@ class Game:
         
         self.player = None
         for tile_obj in self.map_info[self.current_level]['map'].tmxdata.objects:
-            if tile_obj.name == 'player':
-                self.player = Player(self, tile_obj.x, tile_obj.y)
+            if self.last_house_location is None:
+                print('????')
+                if tile_obj.name == 'player':
+                
+                    self.player = Player(self, tile_obj.x, tile_obj.y)
+            elif self.last_house_location is not None and self.inside_house:
+                self.inside_house = False
+                print('not self.last_house_loction')
+                self.player = Player(self, self.last_house_location[0], self.last_house_location[1] + 32)
+
+
             elif tile_obj.name == 'wall':
                 Obstacle(self, tile_obj.x, tile_obj.y,
                          tile_obj.width, tile_obj.height)
         
         if self.player is None:
             self.player = Player(self, 10, 10)
-        spawn_mob_object(self, 100, 300)
+        #spawn_mob_object(self, 100, 300)
         
         self.spawn_coins()
 
@@ -266,7 +276,8 @@ class Game:
 
     def change_level(self, scene):
             
-            
+            print('self.curr_house')
+            print(self.curr_house)
             self.player.kill()
 
             self.delete_trees()
@@ -307,6 +318,10 @@ class Game:
         self.current_level = 'level1'
 
         self.curr_house = None
+
+        self.last_house_location = None
+
+        self.inside_house = False
 
     
 
@@ -422,7 +437,10 @@ class Game:
 
         if door_hits:
             
+            
             self.change_level('level1')
+
+            self.last_house_location = None
         
 
 

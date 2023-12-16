@@ -175,7 +175,11 @@ class Player(pg.sprite.Sprite):
                     
                     self.game.notes2enter_house = []
                     self.game.curr_house.curr_midi_note_idx = 0
+                    print('self.game.curr_house.pos.x, self.game.curr_house.pos.y')
+                    print(self.game.curr_house.pos.x, self.game.curr_house.pos.y)
                     self.game.change_level(self.game.curr_house.interior)
+                    self.game.last_house_location = self.game.curr_house.pos.x, self.game.curr_house.pos.y
+                    self.game.inside_house = True
 
             if shot:
                 dir = vec(1, 0).rotate(-self.rot)
@@ -229,6 +233,7 @@ class Player(pg.sprite.Sprite):
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
         
+        #print('Player pos', self.pos)
 
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.walls, 'x')
