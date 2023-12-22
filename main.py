@@ -105,8 +105,15 @@ class Game:
         print('n_houses: ', n_houses)
         
         self.number_of_notes = 1
-        delete_score_images(self.snd_folder)
-        self.seq_notes = [create_seq_notes(self.snd_folder, 'midi_notes.txt', self.number_of_notes) for _ in range(n_houses)]
+        
+        json_filename = './snd/midi_notes.json'
+        try:
+            with open(json_filename, 'r', encoding='utf-8') as json_file:
+                json_read = json.load(json_file)
+                self.seq_notes = [midi_notes for idx, midi_notes in json_read.items()]
+        except:
+            #delete_score_images(self.snd_folder)
+            self.seq_notes = [create_seq_notes(self.snd_folder, json_filename, self.number_of_notes, idx) for idx in range(n_houses)]
         print('self.seq_notes')
         print(self.seq_notes)
         self.range_of_notes = RANGE_OF_NOTES

@@ -423,6 +423,8 @@ class GhostObstacle(pg.sprite.Sprite):
 
 
 
+
+
 class GrowingTree(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.growing_trees_group
@@ -507,6 +509,10 @@ class GrowingTree(pg.sprite.Sprite):
                 
                 Obstacle(self.game, self.pos.x, self.pos.y,
                         self.game.map_info['level1']['map'].tmxdata.width, self.game.map_info['level1']['map'].tmxdata.height)
+
+
+
+
 
 
 class House(pg.sprite.Sprite):
