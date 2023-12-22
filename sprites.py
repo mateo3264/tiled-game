@@ -399,6 +399,30 @@ class Obstacle(pg.sprite.Sprite):
         pass
 
 
+class GhostObstacle(pg.sprite.Sprite):
+    def __init__(self, game, x, y, w, h, zone_type):
+        
+        self.groups = game.ghost_walls
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.zone_type = zone_type
+        #self.image = 
+        #self.image.fill(GREEN)
+
+        self.rect = pg.Rect(x, y, w, h)
+
+        
+        self.x = x
+        self.y = y
+        
+        self.rect.x = self.x
+        self.rect.y = self.y
+    
+    def update(self):
+        pass
+
+
+
 class GrowingTree(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.growing_trees_group
@@ -406,6 +430,8 @@ class GrowingTree(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
+
+        
 
         self.initial_gid = 10
         self.gid = self.initial_gid
@@ -429,16 +455,27 @@ class GrowingTree(pg.sprite.Sprite):
 
         self.rect.center = self.pos
 
-        self.last_update = 0
+        self.hit_rect = self.rect
 
-        self.time_to_change = 20000 
+        self.last_update = 0
+        hit_ghost_walls = pg.sprite.spritecollide(self, self.game.ghost_walls, False, collide_hit_rect)
+
+        if hit_ghost_walls:
+            if hit_ghost_walls[0].zone_type == 'good':
+
+                self.time_to_change = 2000 
+            else:
+                self.time_to_change = 20000
+        else:
+            self.time_to_change = 10000
+
         self.time_to_change += choice([x for x in 
                                        range(-1 * (self.time_to_change - self.time_to_change // 2), 
                                              self.time_to_change + self.time_to_change // 2, self.time_to_change // 10
                                              )
                                         ]) 
 
-        self.hit_rect = self.rect
+        
 
         self.last_gid_update = 0
 

@@ -255,9 +255,14 @@ class Game:
                 self.player = Player(self, self.last_house_location[0], self.last_house_location[1] + 32)
 
 
-            elif tile_obj.name == 'wall':
+            if tile_obj.name == 'wall':
                 Obstacle(self, tile_obj.x, tile_obj.y,
                          tile_obj.width, tile_obj.height)
+            
+            elif tile_obj.name == 'good':
+                
+                GhostObstacle(self, tile_obj.x, tile_obj.y,
+                         tile_obj.width, tile_obj.height, zone_type='good')
         
         if self.player is None:
             self.player = Player(self, 10, 10)
@@ -297,6 +302,7 @@ class Game:
         self.playing = True
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.ghost_walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
         self.growing_trees_group = pg.sprite.Group()
