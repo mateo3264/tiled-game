@@ -492,6 +492,7 @@ class GrowingTree(pg.sprite.Sprite):
                         
                         wall[1].kill()
             if self.gid == self.initial_gid + 4:
+                Fruit(self.game, self.pos.x, self.pos.y)
                 self.kill()
                 return
 
@@ -512,6 +513,39 @@ class GrowingTree(pg.sprite.Sprite):
 
 
 
+class Fruit(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.fruits
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.image = self.game.spritesheet.get_image(820, 1733, 78, 70)
+
+        rect = self.image.get_rect()
+        self.image = pg.transform.scale(self.image, (rect.width // 2, rect.height // 2))
+
+        self.image.set_colorkey(BLACK)
+
+        self.rect = self.image.get_rect()
+
+        self.pos = vec(x, y)
+
+        self.rect.center = self.pos
+        
+        self.hit_rect = self.rect
+    
+    def update(self):
+        self.rect.center = self.pos
+        self.hit_rect = self.rect
+
+        hits = pg.sprite.spritecollide(self.game.player, self.game.fruits, True, collide_hit_rect)
+
+        if hits:
+            self.game.number_of_fruits_gained += 1
+            self.game.pickup_coin2_snd.play()
+            hits[0].kill()
 
 
 

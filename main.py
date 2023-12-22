@@ -128,6 +128,7 @@ class Game:
 
         self.pickup_coin_snd = pg.mixer.Sound('Pickup_coin.wav')
         self.pickup_coin2_snd = pg.mixer.Sound('Pickup_coin2.wav')
+        self.pickup_coin2_snd = pg.mixer.Sound('fruit1.wav')
 
     def load_folders(self):
         
@@ -275,6 +276,8 @@ class Game:
             self.player = Player(self, 10, 10)
         #spawn_mob_object(self, 100, 300)
         
+        
+
         self.spawn_coins()
 
         self.spawn_chests()
@@ -313,6 +316,7 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
         self.growing_trees_group = pg.sprite.Group()
+        self.fruits = pg.sprite.Group()
         self.houses = pg.sprite.Group()
         self.doors = pg.sprite.Group()
         self.coins = pg.sprite.Group()
@@ -320,6 +324,9 @@ class Game:
         
 
         self.number_of_coins_gained = 0
+
+
+        self.number_of_fruits_gained = 0
 
         self.last_update = 0
 
@@ -498,6 +505,7 @@ class Game:
             draw_image_bubble(self.screen, (500, 700),  self.score_imgs[self.curr_house.scene - 1])
             
         self.draw_text(f'Coins: {self.number_of_coins_gained}', 25, WHITE, WIDTH - 70, 50)
+        self.draw_text(f'Fruits: {self.number_of_fruits_gained}', 25, WHITE, WIDTH - 70, 80)
         pg.display.flip()
     
     def show_start_screen(self):
