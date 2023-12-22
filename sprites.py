@@ -788,13 +788,14 @@ class Chest(pg.sprite.Sprite):
                 self.curr_notes_idx += 1
             
     def change_img(self):
+        
         self.image = self.chest_images[self.curr_img_idx]
         center = self.rect.center
         self.rect = self.image.get_rect()
         self.rect.center = center
 
     def update(self):
-
+        print('self.curr_img_idx', self.curr_img_idx)
         now = pg.time.get_ticks()
 
         self.rect.center = self.pos
@@ -812,11 +813,10 @@ class Chest(pg.sprite.Sprite):
                 if notes:
                     
                     if self.curr_img_idx == 0:
-                        print('player notes ', notes)
-                        print('notes ', self.notes[self.curr_player_notes_idx])
+                        
 
                         if self.notes[self.curr_player_notes_idx] in notes:
-                            print('ENTERED')
+                            
                             self.curr_player_notes_idx += 1
                             self.correct_interval_execution = True
                         else:
@@ -838,11 +838,12 @@ class Chest(pg.sprite.Sprite):
         if self.curr_player_notes_idx == len(self.notes) \
                 and self.correct_interval_execution:
                     
-                        
-
-                    self.curr_img_idx = 1
+                    if self.curr_img_idx == 0:
+                        self.curr_img_idx = 1
+                        self.change_img()
                     
-                    self.change_img()
+                    
+                    
                     if now - self.last_update> 100:
                         self.last_update = now 
                         self.number_of_coin_sounds += 1
@@ -862,5 +863,3 @@ class Chest(pg.sprite.Sprite):
                             self.curr_notes_idx = 0
                             self.curr_player_notes_idx = 0
                             self.number_coins_obtained = 0
-                            
-                
