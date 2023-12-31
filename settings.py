@@ -31,6 +31,7 @@ COLORS = [
 
 
 WALL_IMG = 'tileGreen_39.png'
+SOIL_IMG = 'tile_05.png'
 
 
 # Mob settings

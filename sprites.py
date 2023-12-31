@@ -74,6 +74,7 @@ def collide_with_walls(sprite, group, dir):
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        self._layer = 3
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
 
@@ -102,6 +103,15 @@ class Player(pg.sprite.Sprite):
         self.pattern_checker4 = PatternChecker2([48, 55])
         self.pattern_checker5 = PatternChecker2([84, 85, 86, 87, 88])
         self.pattern_checker6 = PatternChecker2([x for x in range(*self.game.range_of_notes)][:self.game.number_of_notes])
+        self.pattern_checker_excavate = PatternChecker2([48, 52, 56])
+        self.pattern_checker_excavate_mode = PatternChecker2([36])
+
+        self.excavate_mode = True
+
+        self.current_excavate_repetion = 0
+        self.excavate_requirement_rate = 5
+        self.play_excavation_stimuli = self.excavate_mode
+        
         
 
     def get_keys(self):
@@ -135,6 +145,14 @@ class Player(pg.sprite.Sprite):
         if not self.collide_with_walls(dx, dy):
             self.pos.x += dx
             self.pos.y += dy
+    def play_interval(self):
+        if self.play_excavation_stimuli:
+            self.play_excavation_stimuli = False
+            
+            self.game.midi_output.note_on(63, 100)
+            self.game.midi_output.note_on(68, 100)
+            
+
 
     def piano_update(self):
             self.rot_speed = 0
@@ -151,7 +169,22 @@ class Player(pg.sprite.Sprite):
             note_pattern_idx2 = self.pattern_checker5.check_pattern(midi2events, type='one-note', just_once=False)
             notes = self.pattern_checker6.check_pattern(midi2events, type='check-note', just_once=False)
             show_text = self.pattern_checker4.check_pattern(midi2events, type='chord')
-            
+            chord = self.pattern_checker_excavate.check_pattern(midi2events, type='chord')
+            #excavate_mode_idx = self.pattern_checker_excavate_mode.check_pattern(midi2events, type='one-note')
+
+            # if excavate_mode_idx == 0:
+            #     self.excavate_mode = not self.excavate_mode
+            #     print('excavate_mode', self.excavate_mode)
+
+            self.play_interval()
+            if chord and self.excavate_mode == True:
+                
+                self.current_excavate_repetion += 1
+                if self.current_excavate_repetion == self.excavate_requirement_rate:
+                    print('excavating!')
+                    self.play_excavation_stimuli = True
+                    Soil(self.game, self.game.player.pos.x, self.game.player.pos.y)
+                    self.current_excavate_repetion = 0
             #todo: If the student press a cluster containing 
             # all the notes in the range defined to write the score
             # then the student will always be "right". Correct that
@@ -863,3 +896,26 @@ class Chest(pg.sprite.Sprite):
                             self.curr_notes_idx = 0
                             self.curr_player_notes_idx = 0
                             self.number_coins_obtained = 0
+
+class Soil(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.soils
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.image = image = self.game.soil_img
+        self.rect = image.get_rect()
+
+        self.pos = vec(x, y)
+        self.rect.center = self.pos
+        
+
+        self.hit_rect = self.rect
+
+    def update(self):
+        self.rect.center = self.pos
+        self.hit_rect = self.rect
+
+

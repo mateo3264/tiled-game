@@ -167,6 +167,7 @@ class Game:
         self.c_note_img = pg.image.load(path.join(self.img_folder, C_IMG)).convert_alpha()
         self.house_img = pg.image.load(path.join(self.img_folder, HOUSE_IMG)).convert_alpha()
         self.door_img = pg.image.load(path.join(self.img_folder, DOOR_IMG)).convert_alpha()
+        self.soil_img = pg.image.load(path.join(self.img_folder, SOIL_IMG)).convert_alpha()
         self.spritesheet = Spritesheet(path.join(self.img_folder, 'spritesheet_jumper.png'))
         self.spritesheet_chest = Spritesheet(path.join(self.img_folder, 'chest.png'))
         
@@ -310,7 +311,7 @@ class Game:
     def new(self):
         
         self.playing = True
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.Group()
         self.ghost_walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
@@ -321,6 +322,9 @@ class Game:
         self.doors = pg.sprite.Group()
         self.coins = pg.sprite.Group()
         self.chests = pg.sprite.Group()
+        self.soils = pg.sprite.Group()
+
+        
         
 
         self.number_of_coins_gained = 0
@@ -506,6 +510,9 @@ class Game:
             
         self.draw_text(f'Coins: {self.number_of_coins_gained}', 25, WHITE, WIDTH - 70, 50)
         self.draw_text(f'Fruits: {self.number_of_fruits_gained}', 25, WHITE, WIDTH - 70, 80)
+
+
+        
         pg.display.flip()
     
     def show_start_screen(self):
