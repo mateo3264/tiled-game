@@ -69,3 +69,11 @@ HOUSE_IMG = 'medievalStructure_17.png'
 DOOR_IMG = 'door.png'
 
 FONT_NAME = 'fixedsys'
+
+
+MODES = {
+    'LYDIAN':[59, 60, 62, 64, 66, 67, 69, 71, 72],
+    'AUGMENTED':[60, 62, 64, 66, 68, 70, 72],
+    'DIMINISHED':[60, 63, 66, 69, 72],
+    'FOURTHS':[55, 60, 65, 70, 75, 80],
+}
