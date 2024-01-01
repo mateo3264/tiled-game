@@ -99,7 +99,7 @@ class Player(pg.sprite.Sprite):
 
         self.notes_to_excavate = [63, 68]
         self.positions_available_for_excavation = {(0, 0):self.notes_to_excavate}
-        self.excavate_mode = False
+        self.excavate_mode = True
         self.current_excavate_repetion = 0
         self.excavate_requirement_rate = 5
         self.play_excavation_stimuli = self.excavate_mode
