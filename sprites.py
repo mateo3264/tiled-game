@@ -116,6 +116,7 @@ class Player(pg.sprite.Sprite):
         self.pattern_checker6 = PatternChecker2([x for x in range(*self.game.range_of_notes)][:self.game.number_of_notes])
         self.pattern_checker_excavate = PatternChecker2(self.notes_to_excavate)
         self.pattern_checker_excavate_mode = PatternChecker2([36])
+        self.pattern_checker_leave_fruit = PatternChecker2([43])
 
         
 
@@ -124,7 +125,10 @@ class Player(pg.sprite.Sprite):
         
         
         
-
+    def leave_fruit(self):
+        if self.game.number_of_fruits_gained > 0:
+            Fruit(self.game, self.pos.x + TILESIZE, self.pos.y )
+            self.game.number_of_fruits_gained -= 1
     def get_keys(self):
         self.rot_speed = 0
         self.vel = vec(0, 0)
@@ -190,14 +194,16 @@ class Player(pg.sprite.Sprite):
             notes = self.pattern_checker6.check_pattern(midi2events, type='check-note', just_once=False)
             show_text = self.pattern_checker4.check_pattern(midi2events, type='chord')
             chord = self.pattern_checker_excavate.check_pattern(midi2events, type='chord')
-            
+            leave_fruit_idx = self.pattern_checker_leave_fruit.check_pattern(midi2events, type='one-note')
             #excavate_mode_idx = self.pattern_checker_excavate_mode.check_pattern(midi2events, type='one-note')
 
             # if excavate_mode_idx == 0:
             #     self.excavate_mode = not self.excavate_mode
             #     print('excavate_mode', self.excavate_mode)
-            
-
+            if leave_fruit_idx is not None:
+                print('leave_fruit_idx: ', leave_fruit_idx)
+            if leave_fruit_idx == 0:
+                self.leave_fruit()
             
             if self.excavate_mode == True:
                 curr = pg.time.get_ticks()
@@ -210,7 +216,7 @@ class Player(pg.sprite.Sprite):
                 else:
                     self.notes_to_excavate = self.positions_available_for_excavation[curr_player_pos_in_tiles]
 
-                print(self.notes_to_excavate)
+                #print(self.notes_to_excavate)
 
                 if curr - self.last_playing_of_excavation_notes > 2000:
                     self.last_playing_of_excavation_notes = curr
@@ -333,6 +339,9 @@ class Mob(pg.sprite.Sprite):
         self.game = game
 
         self.image = game.zombie_img
+        self.original_image = game.zombie_img
+
+        self.is_healthy = False
 
         self.rect = self.image.get_rect()
 
@@ -380,28 +389,38 @@ class Mob(pg.sprite.Sprite):
     def update(self):
         
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
-        self.image = pg.transform.rotate(self.game.zombie_img, self.rot)
+        self.image = pg.transform.rotate(self.original_image, self.rot)
 
         self.rect = self.image.get_rect()
 
-
-        self.acc = vec(1, 0).rotate(-self.rot)
-        self.avoid_mobs()
-        self.acc.scale_to_length(self.speed)
-        self.acc += self.vel * -1
-        self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
-        self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.walls, 'x')
-        self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.walls, 'y')
+        if not self.is_healthy:
+            self.acc = vec(1, 0).rotate(-self.rot)
+            self.avoid_mobs()
+            self.acc.scale_to_length(self.speed)
+            self.acc += self.vel * -1
+            self.vel += self.acc * self.game.dt
+            self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
+            self.hit_rect.centerx = self.pos.x
+            collide_with_walls(self, self.game.walls, 'x')
+            self.hit_rect.centery = self.pos.y
+            collide_with_walls(self, self.game.walls, 'y')
 
         
         self.rect.center = self.hit_rect.center
 
         if self.health <= 0:
             self.kill()
+        
+        fruit_hit = pg.sprite.spritecollide(self, self.game.fruits, True, collide_hit_rect)
 
+        if fruit_hit:
+            self.is_healthy = True
+            center = self.rect.center
+            self.image = self.game.person_img
+            self.original_image = self.game.person_img
+            self.rect = self.image.get_rect()
+            self.rect.center = center
+            self.hit_rect = self.rect
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self, game, pos, dir):

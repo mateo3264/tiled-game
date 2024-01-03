@@ -77,3 +77,6 @@ MODES = {
     'DIMINISHED':[60, 63, 66, 69, 72],
     'FOURTHS':[55, 60, 65, 70, 75, 80],
 }
+
+
+PERSON_IMG = 'person.png'

@@ -163,6 +163,7 @@ class Game:
         self.wall_img = pg.image.load(path.join(self.img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
         self.zombie_img = pg.image.load(path.join(self.img_folder, MOB_IMG)).convert_alpha()
+        self.person_img = pg.image.load(path.join(self.img_folder, PERSON_IMG)).convert_alpha()
         self.bullet_img = pg.image.load(path.join(self.img_folder, BULLET_IMG)).convert_alpha()
         self.c_note_img = pg.image.load(path.join(self.img_folder, C_IMG)).convert_alpha()
         self.house_img = pg.image.load(path.join(self.img_folder, HOUSE_IMG)).convert_alpha()
@@ -275,7 +276,7 @@ class Game:
         
         if self.player is None:
             self.player = Player(self, 10, 10)
-        #spawn_mob_object(self, 100, 300)
+        spawn_mob_object(self, 100, 300)
         
         
 
@@ -432,14 +433,16 @@ class Game:
         mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
 
         for hit in mob_hits:
-            self.player.health -= MOB_DAMAGE
-            hit.vel = vec(0, 0)
-            if self.player.health <= 0:
-                self.player.kill()
-                self.playing = False
+            if not hit.is_healthy:
+                self.player.health -= MOB_DAMAGE
+                hit.vel = vec(0, 0)
+                if self.player.health <= 0:
+                    self.player.kill()
+                    self.playing = False
         
         if mob_hits:
-            self.player.pos += vec(MOB_KNOCKBACK, 0 ).rotate(-mob_hits[0].rot)
+            if not hit.is_healthy:
+                self.player.pos += vec(MOB_KNOCKBACK, 0 ).rotate(-mob_hits[0].rot)
         
         bullet_hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
 
