@@ -486,7 +486,7 @@ class Game:
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
         # self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_info[self.current_level]['map_img'], self.camera.apply_rect(self.map_info[self.current_level]['map_rect']))
-        draw_health_bar(self.screen, 20, 20, self.player.health / PLAYER_HEALTH)
+        
         # self.draw_grid()
         # self.all_sprites.draw(self.screen)
         for sprite in self.all_sprites:
@@ -511,7 +511,7 @@ class Game:
         self.draw_text(f'Coins: {self.number_of_coins_gained}', 25, WHITE, WIDTH - 70, 50)
         self.draw_text(f'Fruits: {self.number_of_fruits_gained}', 25, WHITE, WIDTH - 70, 80)
 
-
+        draw_health_bar(self.screen, 20, 20, self.player.health / PLAYER_HEALTH)
         
         pg.display.flip()
     
