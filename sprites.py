@@ -172,6 +172,7 @@ class Player(pg.sprite.Sprite):
         
         notes = [choice(MODES['FOURTHS']) for _ in range(2)]
         self.notes_to_excavate = notes
+        print('notes to excavate: ', self.notes_to_excavate)
         if randrange(100) / 100 > 1:
             notes[0] = 60
         self.pattern_checker_excavate.pattern = notes
